@@ -8,10 +8,9 @@
 
 declare(strict_types=1);
 
-namespace SchemaValidator;
+namespace SchemaValidator\Validator;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
-final class SchemaBundle extends Bundle
+interface PriorityInterface
 {
+    public static function getPriority(): int;
 }

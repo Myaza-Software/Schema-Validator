@@ -1,29 +1,29 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
 namespace SchemaValidator\Metadata;
 
-use Symfony\Component\PropertyAccess\Exception\InvalidArgumentException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\Mapping\ClassDiscriminatorResolverInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
-final class ClassMetadataFactoryWrapper
+final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperInterface
 {
     public function __construct(
         private PropertyAccessorInterface $propertyAccessor,
         private ClassMetadataFactoryInterface $classMetadataFactory,
-        private ClassDiscriminatorResolverInterface $classDiscriminatorResolver,
     ) {
     }
 
-    /**
-     * @return ClassMetadataInterface
-     */
-    public function getMetadataFor(string $class, array $values): ?ClassMetadataInterface
+    public function getMetadataFor(string $class, array $values): ClassMetadataInterface
     {
-        $metadata       = $this->classMetadataFactory->getMetadataFor($class);
+        $metadata        = $this->classMetadataFactory->getMetadataFor($class);
         $reflectionClass = $metadata->getReflectionClass();
 
         if ($reflectionClass->hasMethod('__construct')) {
@@ -33,27 +33,37 @@ final class ClassMetadataFactoryWrapper
             );
         }
 
-        $mapping = $this->classDiscriminatorResolver->getMappingForClass($class);
+        $mapping = $metadata->getClassDiscriminatorMapping();
 
         if (null === $mapping) {
             throw new \RuntimeException('Not found constructor');
         }
 
         $propertyPath = $mapping->getTypeProperty();
+        /** @var string|null $value */
+        $value = $this->propertyAccessor->getValue($values, sprintf('[%s]', $propertyPath));
 
-        try {
-            $value = $this->propertyAccessor->getValue($values, $propertyPath);
-        } catch (InvalidArgumentException) {
-            return null;
+        if (null === $value) {
+            /** @var array<string> $mapValue */
+            $mapValue = array_keys($mapping->getTypesMapping());
+            $property = new Property($propertyPath, null);
+            $mapping  = new ClassDiscriminatorMapping($mapValue, $property);
+
+            return new ClassMetadata([], [], $mapping);
         }
 
         $class = $mapping->getClassForType($value);
 
         if (null === $class) {
-            return null;
+            /** @var array<string> $mapValue */
+            $mapValue = array_keys($mapping->getTypesMapping());
+            $property = new Property($propertyPath, $value, true);
+            $mapping  = new ClassDiscriminatorMapping($mapValue, $property);
+
+            return new ClassMetadata([], [], $mapping);
         }
 
-        $metadata       = $this->classMetadataFactory->getMetadataFor($class);
+        $metadata        = $this->classMetadataFactory->getMetadataFor($class);
         $reflectionClass = $metadata->getReflectionClass();
 
         if (!$reflectionClass->hasMethod('__construct')) {

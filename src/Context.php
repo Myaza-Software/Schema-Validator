@@ -1,4 +1,10 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
@@ -25,6 +31,9 @@ final class Context
         return $this->execution;
     }
 
+    /**
+     * @return class-string|string
+     */
     public function getRootType(): string
     {
         return $this->rootType;

@@ -1,7 +1,7 @@
 {
     "name": "myaza-software/schema-validator",
     "type": "symfony-bundle",
-    "description": "Validate json,xml",
+    "description": "Check mapping array to object",
     "authors": [
         {
             "name": "Vlad Shashkov",
@@ -15,16 +15,24 @@
     },
     "require": {
         "php": ">=8",
-        "symfony/dependency-injection": "^5.2",
-        "symfony/framework-bundle": "^5.2",
-        "symfony/http-kernel": "^5.2",
-        "symfony/property-access": "^5.2",
-        "symfony/property-info": "^5.2",
-        "symfony/validator": "^5.2",
-        "symfony/serializer": "^5.2"
+        "symfony/dependency-injection": "^4.3.3 || ^5.0",
+        "symfony/framework-bundle": "^4.3.3 || ^5.0",
+        "symfony/http-kernel": "^4.3.3 || ^5.0",
+        "symfony/property-access": "^4.3.3 || ^5.0",
+        "symfony/property-info": "^4.3.3 || ^5.0",
+        "symfony/validator": "^4.3.3 || ^5.0",
+        "symfony/serializer": "^4.3.3 || ^5.0",
+        "doctrine/annotations": "^1.0",
+        "phpdocumentor/reflection": "^4.*",
+        "phpdocumentor/reflection-docblock": "^5.*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "myclabs/php-enum": "^1.8",
+        "psalm/plugin-symfony": "^2.3",
+        "ramsey/uuid": "^4.1",
+        "symfony/uid": "^5.3",
+        "vimeo/psalm": "^4.7"
     },
     "config": {
         "sort-packages": true

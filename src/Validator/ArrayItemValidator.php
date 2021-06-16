@@ -1,13 +1,19 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
 namespace SchemaValidator\Validator;
 
 use SchemaValidator\Argument;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Util\PropertyPath;
@@ -17,7 +23,7 @@ final class ArrayItemValidator implements ValidatorInterface
 {
     public function __construct(
         private SymfonyValidator $validator,
-        private PropertyInfoExtractorInterface $propertyAccessor,
+        private CollectionInfoExtractor $extractor,
     ) {
     }
 
@@ -28,58 +34,38 @@ final class ArrayItemValidator implements ValidatorInterface
 
     public function validate(Argument $argument, Context $context): void
     {
+        $type = $context->getRootType();
+
+        if (!class_exists($type) && !interface_exists($type)){
+            return;
+        }
+
         $argumentName = $argument->getName();
-        [
-            'class'       => $class,
-            'builtinType' => $builtinType
-        ] = $this->findArrayValueType($context->getRootType(), $argumentName);
+        $valueType    = $this->extractor->getValueType($type, $argumentName);
 
-
-        if (null === $class && null === $builtinType) {
+        if (null === $valueType->getType()) {
             return;
         }
 
-        $propertyPath = PropertyPath::append($context->getRootPath(), $argumentName);
-        $validator    = $this->validator->inContext($context->getExecution());
+        /** @var array<string,array<string,mixed>|int|string|float> $value */
         $value        = $argument->getValueByArgumentName();
+        $rootPath     = $context->getRootPath();
+        $propertyPath = PropertyPath::append($rootPath, $argument->getName());
+        $validator    = $this->validator->inContext($context->getExecution())->atPath($rootPath);
 
-
-        if ($class !== null){
+        if (!$valueType->isBuiltin()) {
             foreach ($value as $key => $item) {
-                $validator->validate($item, [
-                    new Schema([
-                        'class'    => $class,
-                        'rootPath' => $propertyPath . '[' . $key . ']',
-                    ]),
-                ]);
+                $validator->validate(is_array($item) ? $item : [$item], new Schema([
+                    'class'    => $valueType->getType(),
+                    'rootPath' => $propertyPath . '[' . $key . ']',
+                ]));
             }
 
             return;
         }
 
-        $validator->atPath($propertyPath)
-            ->validate($value, new Collection([
-                new Type($builtinType)
-            ]))
-        ;
-    }
-
-    private function findArrayValueType(string $class, string $propertyName): array
-    {
-        if (null !== $typesProperty = $this->propertyAccessor->getTypes($class, $propertyName)) {
-            foreach ($typesProperty as $type) {
-                if ($type->isCollection() && ($valueType = $type->getCollectionValueType()) !== null) {
-                    return [
-                        'class'       => $valueType->getClassName(),
-                        'builtinType' => $valueType->getBuiltinType()
-                    ];
-                }
-            }
-        }
-
-        return [
-            'class'       => null,
-            'builtinType' => null
-        ];
+        $validator->validate($value, new Collection([
+            new Type($valueType->getType()),
+        ]));
     }
 }

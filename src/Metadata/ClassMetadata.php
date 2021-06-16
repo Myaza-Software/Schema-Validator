@@ -1,4 +1,10 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
@@ -12,15 +18,17 @@ final class ClassMetadata implements ClassMetadataInterface
      * ClassMetaData constructor.
      *
      * @param AttributeMetadataInterface[] $attributes
-     * @param \ReflectionParameter[]   $parameters
+     * @param \ReflectionParameter[]       $parameters
      */
     public function __construct(
         private array $attributes,
-        private array $parameters
-    ) {}
+        private array $parameters,
+        private ?ClassDiscriminatorMapping $mapping = null,
+    ) {
+    }
 
     /**
-     * @return ClassMetadataInterface[]
+     * @return AttributeMetadataInterface[]
      */
     public function getAttributes(): array
     {
@@ -33,5 +41,15 @@ final class ClassMetadata implements ClassMetadataInterface
     public function getParameters(): array
     {
         return $this->parameters;
+    }
+
+    public function getMapping(): ?ClassDiscriminatorMapping
+    {
+        return $this->mapping;
+    }
+
+    public function isEmpty(): bool
+    {
+        return [] === $this->parameters && [] === $this->attributes;
     }
 }

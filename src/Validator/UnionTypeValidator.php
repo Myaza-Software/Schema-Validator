@@ -1,4 +1,10 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
@@ -28,16 +34,17 @@ final class UnionTypeValidator implements ValidatorInterface
     public function validate(Argument $argument, Context $context): void
     {
         $unionType = $argument->getType();
+        $execution = $context->getExecution();
 
         if (!$unionType instanceof \ReflectionUnionType) {
             throw new \InvalidArgumentException('Invalid reflection union argument');
         }
 
-        $countErrors  = 0;
-        $types        = $unionType->getTypes();
+        $countErrors = 0;
+        $types       = $unionType->getTypes();
 
         foreach ($types as $type) {
-            $executionContext  = clone $context->getExecution();
+            $executionContext = clone $execution;
 
             foreach ($this->validators as $validator) {
                 if ($validator->support($type)) {
@@ -46,7 +53,7 @@ final class UnionTypeValidator implements ValidatorInterface
             }
 
             if (count($executionContext->getViolations()) > 0) {
-                $countErrors++;
+                ++$countErrors;
             }
         }
 
@@ -54,15 +61,15 @@ final class UnionTypeValidator implements ValidatorInterface
             return;
         }
 
-
-        $context->getExecution()->buildViolation(Schema::INVALID_TYPE)
-            ->setParameter('{{ value }}', (string) $argument->getValueByArgumentName())
-            ->setParameter('{{ type }}', $this->formatUnionType($unionType))
+        $execution->buildViolation(Schema::INVALID_TYPE)
+            ->setParameters([
+                '{{ value }}' => (string) $argument->getValueByArgumentName(),
+                '{{ type }}'  => $this->formatUnionType($unionType),
+            ])
             ->setCode(Schema::INVALID_TYPE_ERROR)
             ->addViolation()
         ;
     }
-
 
     private function formatUnionType(\ReflectionUnionType $type): string
     {

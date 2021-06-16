@@ -1,4 +1,10 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
@@ -9,7 +15,7 @@ use SchemaValidator\Context;
 use SchemaValidator\Schema;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
-final class ObjectValidator implements ValidatorInterface
+final class ObjectValidator implements ValidatorInterface, PriorityInterface
 {
     public function __construct(
         private SymfonyValidator $validator,
@@ -34,5 +40,10 @@ final class ObjectValidator implements ValidatorInterface
                 new Schema(['class' => $type->getName(), 'rootPath' => $context->getRootPath()]),
             ])
         ;
+    }
+
+    public static function getPriority(): int
+    {
+        return -1;
     }
 }

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Schema Validator
+ *
+ * @author Vlad Shashkov <root@myaza.info>
+ * @copyright Copyright (c) 2021, The Myaza Software
+ */
 
 declare(strict_types=1);
 
@@ -36,6 +42,7 @@ final class PrimitiveValidator implements ValidatorInterface
             throw new \InvalidArgumentException('Invalid reflection named argument');
         }
 
+        /** @var string|int|float|array $value */
         $value    = $argument->getValueByArgumentName();
         $typeName = $type->getName();
         $types    = [$typeName];
