@@ -25,16 +25,31 @@ final class Schema extends Constraint
     /**
      * @var class-string
      */
-    public string $class;
+    public string $type;
 
     public string $rootPath = '';
+
+    public bool $strictTypes = false;
+
+    public function __construct(array $options = [], array $groups = null, mixed $payload = null)
+    {
+        parent::__construct($options, $groups, $payload);
+
+        if (!isset($this->type)) {
+            throw new \InvalidArgumentException('Type no set');
+        }
+
+        if (!class_exists($this->type) && !interface_exists($this->type)) {
+            throw new \InvalidArgumentException('Not found class or interface:' . $this->type);
+        }
+    }
 
     /**
      * @return array<string>
      */
     public function getRequiredOptions(): array
     {
-        return ['class'];
+        return ['type'];
     }
 
     public function getTargets(): string

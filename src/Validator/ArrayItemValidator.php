@@ -16,7 +16,6 @@ use SchemaValidator\Context;
 use SchemaValidator\Schema;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
 final class ArrayItemValidator implements ValidatorInterface
@@ -36,7 +35,7 @@ final class ArrayItemValidator implements ValidatorInterface
     {
         $type = $context->getRootType();
 
-        if (!class_exists($type) && !interface_exists($type)){
+        if (!class_exists($type) && !interface_exists($type)) {
             return;
         }
 
@@ -48,16 +47,27 @@ final class ArrayItemValidator implements ValidatorInterface
         }
 
         /** @var array<string,array<string,mixed>|int|string|float> $value */
-        $value        = $argument->getValueByArgumentName();
+        $value        = is_array($argument->getValueByArgumentName()) ? $argument->getValueByArgumentName() : [];
         $rootPath     = $context->getRootPath();
-        $propertyPath = PropertyPath::append($rootPath, $argument->getName());
+        $propertyPath = $argument->getName();
         $validator    = $this->validator->inContext($context->getExecution())->atPath($rootPath);
 
         if (!$valueType->isBuiltin()) {
+            if ([] === $value || !array_is_list($value)) {
+                $validator->validate($value, new Schema([
+                    'type'        => $valueType->getType(),
+                    'rootPath'    => $propertyPath . '[]',
+                    'strictTypes' => $context->isStrictTypes(),
+                ]));
+
+                return;
+            }
+
             foreach ($value as $key => $item) {
                 $validator->validate(is_array($item) ? $item : [$item], new Schema([
-                    'class'    => $valueType->getType(),
-                    'rootPath' => $propertyPath . '[' . $key . ']',
+                    'type'        => $valueType->getType(),
+                    'rootPath'    => $propertyPath . '[' . $key . ']',
+                    'strictTypes' => $context->isStrictTypes(),
                 ]));
             }
 

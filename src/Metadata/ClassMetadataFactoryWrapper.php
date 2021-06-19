@@ -21,9 +21,9 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
     ) {
     }
 
-    public function getMetadataFor(string $class, array $values): ClassMetadataInterface
+    public function getMetadataFor(string $type, array $values): ClassMetadataInterface
     {
-        $metadata        = $this->classMetadataFactory->getMetadataFor($class);
+        $metadata        = $this->classMetadataFactory->getMetadataFor($type);
         $reflectionClass = $metadata->getReflectionClass();
 
         if ($reflectionClass->hasMethod('__construct')) {
@@ -52,9 +52,9 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
             return new ClassMetadata([], [], $mapping);
         }
 
-        $class = $mapping->getClassForType($value);
+        $type = $mapping->getClassForType($value);
 
-        if (null === $class) {
+        if (null === $type) {
             /** @var array<string> $mapValue */
             $mapValue = array_keys($mapping->getTypesMapping());
             $property = new Property($propertyPath, $value, true);
@@ -63,7 +63,7 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
             return new ClassMetadata([], [], $mapping);
         }
 
-        $metadata        = $this->classMetadataFactory->getMetadataFor($class);
+        $metadata        = $this->classMetadataFactory->getMetadataFor($type);
         $reflectionClass = $metadata->getReflectionClass();
 
         if (!$reflectionClass->hasMethod('__construct')) {

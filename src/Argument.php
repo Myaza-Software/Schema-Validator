@@ -36,7 +36,15 @@ final class Argument
 
     public function getValueByArgumentName(): mixed
     {
-        return $this->rootValues[$this->name] ?? null;
+        return array_key_exists($this->name, $this->rootValues) ? $this->rootValues[$this->name] : null;
+    }
+
+    public function withRootValues(array $values): self
+    {
+        $new             = clone $this;
+        $new->rootValues = $values;
+
+        return $new;
     }
 
     public function withType(\ReflectionType $type): self

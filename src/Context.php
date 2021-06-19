@@ -17,7 +17,8 @@ final class Context
     public function __construct(
         private string $rootPath,
         private string $rootType,
-        private ExecutionContextInterface $execution
+        private ExecutionContextInterface $execution,
+        private bool $strictTypes,
     ) {
     }
 
@@ -45,5 +46,10 @@ final class Context
         $new->execution = $execution;
 
         return $new;
+    }
+
+    public function isStrictTypes(): bool
+    {
+        return $this->strictTypes;
     }
 }

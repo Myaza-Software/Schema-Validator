@@ -13,10 +13,16 @@ namespace SchemaValidator\Validator;
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
+use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
 final class ObjectValidator implements ValidatorInterface, PriorityInterface
 {
+    /**
+     * ObjectValidator constructor.
+     *
+     * @param SymfonyValidator $validator
+     */
     public function __construct(
         private SymfonyValidator $validator,
     ) {
@@ -35,9 +41,15 @@ final class ObjectValidator implements ValidatorInterface, PriorityInterface
             throw new \InvalidArgumentException('Invalid reflection named argument');
         }
 
+        $value = $argument->getValueByArgumentName();
+
         $this->validator->inContext($context->getExecution())
-            ->validate($argument->getValueByArgumentName() ?? $argument->getRootValues(), [
-                new Schema(['class' => $type->getName(), 'rootPath' => $context->getRootPath()]),
+            ->validate(is_array($value) ? $value : [$value], [
+                new Schema([
+                    'type'        => $type->getName(),
+                    'rootPath'    => PropertyPath::append($context->getRootPath(), $argument->getName()),
+                    'strictTypes' => $context->isStrictTypes(),
+                ]),
             ])
         ;
     }

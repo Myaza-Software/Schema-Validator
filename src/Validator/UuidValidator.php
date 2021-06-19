@@ -39,7 +39,7 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
             return false;
         }
 
-        $isRamseyUuid  = is_subclass_of($typeName, Uuid::class);
+        $isRamseyUuid  = is_subclass_of($typeName, Uuid::class) || Uuid::class === $typeName;
         $isSymfonyUuid = is_subclass_of($typeName, AbstractUid::class);
 
         if (!$isRamseyUuid && !$isSymfonyUuid) {
@@ -58,12 +58,12 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
         }
 
         /** @var string $value */
-        $value   = $argument->getValueByArgumentName();
+        $value = $argument->getValueByArgumentName();
         /** @var class-string $uuid */
         $uuid      = $type->getName();
         $execution = $context->getExecution();
-        $version = UuidExtractor::findVersion($uuid);
-        $options = [];
+        $version   = UuidExtractor::findVersion($uuid);
+        $options   = [];
 
         if (null !== $version) {
             $options['versions'] = [$version];

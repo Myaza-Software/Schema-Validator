@@ -13,6 +13,11 @@
             "SchemaValidator\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "SchemaValidator\\Test\\": "tests/"
+        }
+    },
     "require": {
         "php": ">=8",
         "symfony/dependency-injection": "^4.3.3 || ^5.0",
@@ -23,14 +28,18 @@
         "symfony/validator": "^4.3.3 || ^5.0",
         "symfony/serializer": "^4.3.3 || ^5.0",
         "doctrine/annotations": "^1.0",
-        "phpdocumentor/reflection": "^4.*",
-        "phpdocumentor/reflection-docblock": "^5.*"
+        "phpdocumentor/reflection": "^4.0",
+        "phpdocumentor/reflection-docblock": "^5.2"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
+        "infection/infection": "^0.23.0",
         "myclabs/php-enum": "^1.8",
+        "phpunit/phpunit": "^9.5",
+        "psalm/plugin-phpunit": "^0.16.0",
         "psalm/plugin-symfony": "^2.3",
         "ramsey/uuid": "^4.1",
+        "roave/infection-static-analysis-plugin": "^1.8",
         "symfony/uid": "^5.3",
         "vimeo/psalm": "^4.7"
     },

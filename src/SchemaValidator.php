@@ -41,10 +41,10 @@ final class SchemaValidator extends ConstraintValidator
             throw new UnexpectedValueException($value, 'array');
         }
 
-        $metadata = $this->classMetadataFactory->getMetadataFor($constraint->class, $value);
+        $metadata = $this->classMetadataFactory->getMetadataFor($constraint->type, $value);
+        $mapping  = $metadata->getMapping();
 
-        if ($metadata->isEmpty()) {
-            $mapping  = $metadata->getMapping();
+        if ($metadata->isEmpty() && null !== $mapping) {
             $property = $mapping->getProperty();
 
             if (!$property->isExits()) {
@@ -76,11 +76,11 @@ final class SchemaValidator extends ConstraintValidator
             $reflectionType   = $parameter->getType();
             $rootPropertyName = ($attributes[$parameter->name] ?? null)?->getSerializedName() ?? $parameter->name;
 
-            if ($parameter->isOptional() || null === $reflectionType) {
-                return;
+            if (null === $reflectionType) {
+                continue;
             }
 
-            if (!array_key_exists($rootPropertyName, $value)) {
+            if (!array_key_exists($rootPropertyName, $value) && !$parameter->isOptional()) {
                 $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING)
                     ->atPath(PropertyPath::append($constraint->rootPath, $rootPropertyName))
                     ->setCode(Schema::MISSING_FILED_CODE)
@@ -88,6 +88,8 @@ final class SchemaValidator extends ConstraintValidator
                     ->setInvalidValue(null)
                     ->addViolation()
                 ;
+
+                continue;
             }
 
             foreach ($this->validators as $validator) {
@@ -95,15 +97,17 @@ final class SchemaValidator extends ConstraintValidator
                     continue;
                 }
 
-                $rootPath = $constraint->rootPath === '' ? $rootPropertyName : $constraint->rootPath;
-                $class    = $constraint->class;
-
                 $argument = new Argument($rootPropertyName, $value, $reflectionType);
-                $context  = new Context($rootPath, $class, $this->context);
+                $context  = new Context(
+                    $constraint->rootPath,
+                    $constraint->type,
+                    $this->context,
+                    $constraint->strictTypes
+                );
 
                 $validator->validate($argument, $context);
 
-                return;
+                break;
             }
         }
     }

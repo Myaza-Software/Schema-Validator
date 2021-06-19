@@ -36,10 +36,10 @@ final class DateValidator implements ValidatorInterface
             ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->validate($argument->getValueByArgumentName(), [
                 new ConstraintType([
-                    'type' => ['string'] + ($argument->getType()->allowsNull() ? ['null'] : []),
+                    'type' => ['string'],
                 ]),
                 new NotBlank(['allowNull' => $argument->getType()->allowsNull()]),
-                new DateTime(),
+                new DateTime(['format' => 'd.m.Y']),
             ])
         ;
     }

@@ -56,7 +56,7 @@ final class CollectionInfoExtractor
 
             $valueType = $type->getCollectionValueType();
 
-            if ($valueType === null){
+            if (null === $valueType) {
                 return new ValueType(null, true);
             }
 

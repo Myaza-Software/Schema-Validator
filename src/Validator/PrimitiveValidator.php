@@ -19,9 +19,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator
 final class PrimitiveValidator implements ValidatorInterface
 {
     private const SUPPORT_CAST_TYPE = [
-        'int'    => ['string', 'float'],
-        'string' => ['int', 'float'],
-        'float'  => ['int', 'string'],
+        'int'    => ['int', 'string', 'float'],
+        'string' => ['string', 'int', 'float'],
+        'float'  => ['float', 'int', 'string'],
     ];
 
     public function __construct(
@@ -39,7 +39,7 @@ final class PrimitiveValidator implements ValidatorInterface
         $type = $argument->getType();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new \InvalidArgumentException('Invalid reflection named argument');
+            throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         /** @var string|int|float|array $value */
@@ -47,18 +47,16 @@ final class PrimitiveValidator implements ValidatorInterface
         $typeName = $type->getName();
         $types    = [$typeName];
 
-        if (($castTypes = self::SUPPORT_CAST_TYPE[$typeName] ?? null) !== null) {
-            $types = $types + $castTypes;
+        if (!$context->isStrictTypes() && array_key_exists($typeName, self::SUPPORT_CAST_TYPE)) {
+            $types = self::SUPPORT_CAST_TYPE[$typeName];
         }
 
         $constraint = new ConstraintType([
-            'type' => $types + ($type->allowsNull() ? ['null'] : []),
+            'type' => $types,
         ]);
 
-        $rootPath = $context->getRootPath() === $argument->getName() ? '' : $context->getRootPath();
-
         $this->validator->inContext($context->getExecution())
-            ->atPath(PropertyPath::append($rootPath, $argument->getName()))
+            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->validate($value, [$constraint])
         ;
     }

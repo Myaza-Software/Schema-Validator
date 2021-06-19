@@ -13,6 +13,7 @@ namespace SchemaValidator\Validator;
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
+use Symfony\Component\Validator\Util\PropertyPath;
 
 final class UnionTypeValidator implements ValidatorInterface
 {
@@ -47,9 +48,11 @@ final class UnionTypeValidator implements ValidatorInterface
             $executionContext = clone $execution;
 
             foreach ($this->validators as $validator) {
-                if ($validator->support($type)) {
-                    $validator->validate($argument->withType($type), $context->withExecution($executionContext));
+                if (!$validator->support($type)) {
+                    continue;
                 }
+
+                $validator->validate($argument->withType($type), $context->withExecution($executionContext));
             }
 
             if (count($executionContext->getViolations()) > 0) {
@@ -62,6 +65,7 @@ final class UnionTypeValidator implements ValidatorInterface
         }
 
         $execution->buildViolation(Schema::INVALID_TYPE)
+            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->setParameters([
                 '{{ value }}' => (string) $argument->getValueByArgumentName(),
                 '{{ type }}'  => $this->formatUnionType($unionType),

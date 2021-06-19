@@ -29,7 +29,7 @@ final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterfac
             return false;
         }
 
-        if (!class_exists(Enum::class) && !is_subclass_of($type->getName(), Enum::class)) {
+        if (!class_exists(Enum::class) || !is_subclass_of($type->getName(), Enum::class)) {
             return false;
         }
 
@@ -49,7 +49,6 @@ final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterfac
         /** @var class-string<Enum> $enum */
         $enum      = $type->getName();
         $execution = $context->getExecution();
-
 
         $this->validator->inContext($execution)
             ->validate($value, [
