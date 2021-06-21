@@ -1,10 +1,8 @@
-
 <p align="center">
     <a href="https://github.com/Myaza-Software" target="_blank">
         <img src="https://myaza-software.github.io/storage/schema/icon.svg" height="300px">
     </a>
     <h1 align="center">Schema Validator</h1>
-    <br>
 </p>
 
 Description:
