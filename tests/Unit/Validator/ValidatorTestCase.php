@@ -22,17 +22,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    /**
-     * Whether to format {@link \DateTime} objects, either with the {@link \IntlDateFormatter}
-     * (if it is available) or as RFC-3339 dates ("Y-m-d H:i:s").
-     */
-    private const PRETTY_DATE = 1;
-
-    /**
-     * Whether to cast objects with a "__toString()" method to strings.
-     */
-    private const OBJECT_TO_STRING = 2;
-
     protected ValidatorInterface $validator;
     protected ExecutionContextInterface $executionContext;
 
@@ -62,54 +51,12 @@ abstract class ValidatorTestCase extends TestCase
         $this->assertCount(0, $violations, $message);
     }
 
-    protected function formatValue(mixed $value, int $format = 0): string
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod
+     */
+    protected function assertEqualsConstraint(Constraint $constraint): void
     {
-        if (($format & self::PRETTY_DATE) && $value instanceof \DateTimeInterface) {
-            if (class_exists(\IntlDateFormatter::class)) {
-                $formatter = new \IntlDateFormatter(\Locale::getDefault(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::SHORT, 'UTC');
-
-                return $formatter->format(new \DateTime(
-                    $value->format('Y-m-d H:i:s.u'),
-                    new \DateTimeZone('UTC')
-                ));
-            }
-
-            return $value->format('Y-m-d H:i:s');
-        }
-
-        if (\is_object($value)) {
-            if (($format & self::OBJECT_TO_STRING) && method_exists($value, '__toString')) {
-                return $value->__toString();
-            }
-
-            return 'object';
-        }
-
-        if (\is_array($value)) {
-            return 'array';
-        }
-
-        if (\is_string($value)) {
-            return '"' . $value . '"';
-        }
-
-        if (\is_resource($value)) {
-            return 'resource';
-        }
-
-        if (null === $value) {
-            return 'null';
-        }
-
-        if (false === $value) {
-            return 'false';
-        }
-
-        if (true === $value) {
-            return 'true';
-        }
-
-        return (string) $value;
+        $this->assertEquals($constraint, $this->executionContext->getConstraint());
     }
 }
 
@@ -125,6 +72,9 @@ final class ConstraintViolationAssertion
     private ?string $code        = null;
     private mixed $cause         = null;
 
+    /**
+     * @param ConstraintViolationAssertion[] $assertions
+     */
     public function __construct(
         private ExecutionContextInterface $context,
         private string $message,
@@ -140,7 +90,7 @@ final class ConstraintViolationAssertion
         return $this;
     }
 
-    public function setParameter(string $key, mixed $value): self
+    public function setParameter(string $key, string $value): self
     {
         $this->parameters[$key] = $value;
 
@@ -198,9 +148,12 @@ final class ConstraintViolationAssertion
         }
         $expected[] = $this->getViolation();
 
-        $violations = iterator_to_array($this->context->getViolations());
+        $violations      = iterator_to_array($this->context->getViolations());
+        $expectedCount   = \count($expected);
+        $violationsCount = \count($violations);
+        $message         = sprintf('%u violation(s) expected. Got %u.', $expectedCount, $violationsCount);
 
-        Assert::assertSame($expectedCount = \count($expected), $violationsCount = \count($violations), sprintf('%u violation(s) expected. Got %u.', $expectedCount, $violationsCount));
+        Assert::assertSame($expectedCount, $violationsCount, $message);
 
         reset($violations);
 

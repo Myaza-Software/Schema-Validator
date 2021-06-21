@@ -14,6 +14,7 @@ use MyCLabs\Enum\Enum;
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
 final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterface
@@ -41,7 +42,7 @@ final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterfac
         $type = $argument->getType();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new \InvalidArgumentException('Invalid reflection named argument');
+            throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         /** @var string $value */
@@ -51,6 +52,7 @@ final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterfac
         $execution = $context->getExecution();
 
         $this->validator->inContext($execution)
+            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->validate($value, [
                 new Choice([
                     'choices' => forward_static_call_array([$enum, 'toArray'], []),

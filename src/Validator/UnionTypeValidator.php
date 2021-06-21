@@ -12,6 +12,7 @@ namespace SchemaValidator\Validator;
 
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
+use function SchemaValidator\formatValue;
 use SchemaValidator\Schema;
 use Symfony\Component\Validator\Util\PropertyPath;
 
@@ -38,7 +39,7 @@ final class UnionTypeValidator implements ValidatorInterface
         $execution = $context->getExecution();
 
         if (!$unionType instanceof \ReflectionUnionType) {
-            throw new \InvalidArgumentException('Invalid reflection union argument');
+            throw new \InvalidArgumentException('Type expected:' . \ReflectionUnionType::class);
         }
 
         $countErrors = 0;
@@ -53,6 +54,8 @@ final class UnionTypeValidator implements ValidatorInterface
                 }
 
                 $validator->validate($argument->withType($type), $context->withExecution($executionContext));
+
+                break;
             }
 
             if (count($executionContext->getViolations()) > 0) {
@@ -64,12 +67,11 @@ final class UnionTypeValidator implements ValidatorInterface
             return;
         }
 
-        $execution->buildViolation(Schema::INVALID_TYPE)
+        $execution->buildViolation(Schema::INVALID_TYPE, [
+            '{{ value }}' => formatValue($argument->getValueByArgumentName()),
+            '{{ type }}'  => $this->formatUnionType($unionType),
+        ])
             ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
-            ->setParameters([
-                '{{ value }}' => (string) $argument->getValueByArgumentName(),
-                '{{ type }}'  => $this->formatUnionType($unionType),
-            ])
             ->setCode(Schema::INVALID_TYPE_ERROR)
             ->addViolation()
         ;

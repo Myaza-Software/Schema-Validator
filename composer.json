@@ -11,7 +11,8 @@
     "autoload": {
         "psr-4": {
             "SchemaValidator\\": "src/"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "autoload-dev": {
         "psr-4": {

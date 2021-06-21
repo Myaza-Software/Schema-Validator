@@ -12,6 +12,7 @@ namespace SchemaValidator\Test\Unit\Validator;
 
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
+use function SchemaValidator\formatValue;
 use SchemaValidator\Test\Unit\ArgumentBuilder;
 use SchemaValidator\Test\Unit\ReflectionClassWrapper;
 use SchemaValidator\Validator\PrimitiveValidator;
@@ -19,6 +20,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 final class PrimitiveValidatorTest extends ValidatorTestCase
 {
+    /**
+     * @throws \ReflectionException
+     */
     public function testInvalidArgument(): void
     {
         $this->expectExceptionCode(0);
@@ -34,13 +38,16 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
         };
 
         $argument = ArgumentBuilder::build($dtoWithUnionTypeArgs, ['id' => 50]);
-        $context  = new Context('', $dtoWithUnionTypeArgs::class, $this->executionContext, false);
+        $context  = new Context('', $dtoWithUnionTypeArgs::class, false, $this->executionContext);
 
         $validator->validate($argument, $context);
     }
 
     /**
      * @dataProvider successValidateDataProvider
+     * @psalm-suppress MixedArgument
+     *
+     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
      */
     public function testSuccessValidate(Argument $argument, array $other): void
     {
@@ -54,6 +61,8 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
 
     /**
      * @throws \ReflectionException
+     *
+     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}}>
      */
     public function successValidateDataProvider(): array
     {
@@ -62,7 +71,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
             'dtoWithFloatArg'     => $dtoWithFloatArg,
             'dtoWithStringArg'    => $dtoWithStringArg,
             'dtoWithNullableArgs' => $dtoWithNullableArgs,
-        ] = $this->getDtos();
+        ] = $this->getObjects();
 
         return [
             [
@@ -95,15 +104,17 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
     {
         $validator = new PrimitiveValidator($this->validator);
 
-        $this->assertEquals($validator->support($type), $isSupport);
+        $this->assertEquals($isSupport, $validator->support($type));
     }
 
     /**
      * @throws \ReflectionException
+     *
+     * @return array<int,array{0: \ReflectionType, 1: bool}>
      */
     public function supportDataProvider(): array
     {
-        ['dtoWithObjectArgs' => $dtoWithObjectArgs, 'dtoWithFloatArg' => $dtoWithPrimitiveArgs] = $this->getDtos();
+        ['dtoWithObjectArgs' => $dtoWithObjectArgs, 'dtoWithFloatArg' => $dtoWithPrimitiveArgs] = $this->getObjects();
 
         return [
             [new \ReflectionUnionType(), false],
@@ -114,6 +125,9 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
 
     /**
      * @dataProvider failedValidateDataProvider
+     * @psalm-suppress MixedArgument
+     *
+     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
      */
     public function testFailedValidate(Argument $argument, array $other, string $type): void
     {
@@ -125,7 +139,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
 
         $this->buildViolation('This value should be of type {{ type }}.', $constraint)
             ->atPath($argument->getName())
-            ->setParameter('{{ value }}', $this->formatValue($argument->getValueByArgumentName()))
+            ->setParameter('{{ value }}', formatValue($argument->getValueByArgumentName()))
             ->setParameter('{{ type }}', $type)
             ->setInvalidValue($argument->getValueByArgumentName())
             ->setCode('ba785a8c-82cb-4283-967c-3cf342181b40')
@@ -135,6 +149,8 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
 
     /**
      * @throws \ReflectionException
+     *
+     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool},2: string}>
      */
     public function failedValidateDataProvider(): array
     {
@@ -142,7 +158,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
             'dtoWithIntArg'    => $dtoWithIntArg,
             'dtoWithFloatArg'  => $dtoWithFloatArg,
             'dtoWithStringArg' => $dtoWithStringArg,
-        ] = $this->getDtos();
+        ] = $this->getObjects();
 
         return [
             [
@@ -181,7 +197,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
     /**
      * @return array<string,object>
      */
-    private function getDtos(): array
+    private function getObjects(): array
     {
         return [
             'dtoWithIntArg' => new class (1) {

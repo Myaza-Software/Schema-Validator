@@ -31,16 +31,19 @@ final class Schema extends Constraint
 
     public bool $strictTypes = false;
 
+    /**
+     * Schema constructor.
+     *
+     * @psalm-suppress UninitializedProperty,PossiblyNullArgument,MixedArgument
+     *
+     * @param string[] $groups
+     */
     public function __construct(array $options = [], array $groups = null, mixed $payload = null)
     {
         parent::__construct($options, $groups, $payload);
 
-        if (!isset($this->type)) {
-            throw new \InvalidArgumentException('Type no set');
-        }
-
         if (!class_exists($this->type) && !interface_exists($this->type)) {
-            throw new \InvalidArgumentException('Not found class or interface:' . $this->type);
+            throw new \InvalidArgumentException(sprintf('Not found class or interface: %s', $this->type));
         }
     }
 

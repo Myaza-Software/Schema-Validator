@@ -81,10 +81,11 @@ final class SchemaValidator extends ConstraintValidator
             }
 
             if (!array_key_exists($rootPropertyName, $value) && !$parameter->isOptional()) {
-                $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING)
+                $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING, [
+                    '{{ field }}', $this->formatValue($rootPropertyName),
+                ])
                     ->atPath(PropertyPath::append($constraint->rootPath, $rootPropertyName))
                     ->setCode(Schema::MISSING_FILED_CODE)
-                    ->setParameter('{{ field }}', $this->formatValue($rootPropertyName))
                     ->setInvalidValue(null)
                     ->addViolation()
                 ;
@@ -98,12 +99,7 @@ final class SchemaValidator extends ConstraintValidator
                 }
 
                 $argument = new Argument($rootPropertyName, $value, $reflectionType);
-                $context  = new Context(
-                    $constraint->rootPath,
-                    $constraint->type,
-                    $this->context,
-                    $constraint->strictTypes
-                );
+                $context  = new Context($constraint->rootPath, $constraint->type, $constraint->strictTypes, $this->context);
 
                 $validator->validate($argument, $context);
 

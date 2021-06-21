@@ -33,12 +33,15 @@ final class ObjectValidator implements ValidatorInterface, PriorityInterface
         return $type instanceof \ReflectionNamedType && !$type->isBuiltin();
     }
 
+    /**
+     * @psalm-suppress MixedAssignment
+     */
     public function validate(Argument $argument, Context $context): void
     {
         $type = $argument->getType();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new \InvalidArgumentException('Invalid reflection named argument');
+            throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         $value = $argument->getValueByArgumentName();

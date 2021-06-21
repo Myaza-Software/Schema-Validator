@@ -33,12 +33,8 @@ final class ArrayItemValidator implements ValidatorInterface
 
     public function validate(Argument $argument, Context $context): void
     {
-        $type = $context->getRootType();
-
-        if (!class_exists($type) && !interface_exists($type)) {
-            return;
-        }
-
+        /** @var class-string $type */
+        $type         = $context->getRootType();
         $argumentName = $argument->getName();
         $valueType    = $this->extractor->getValueType($type, $argumentName);
 

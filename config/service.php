@@ -12,7 +12,7 @@ use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
 use SchemaValidator\Metadata\ClassMetadataFactoryWrapper;
 use SchemaValidator\SchemaValidator;
 use SchemaValidator\Validator\ArrayItemValidator;
-use SchemaValidator\Validator\DateValidator;
+use SchemaValidator\Validator\DateTimeValidator;
 use SchemaValidator\Validator\ObjectValidator;
 use SchemaValidator\Validator\MyCLabsEnumValidator;
 use SchemaValidator\Validator\PrimitiveValidator;
@@ -42,15 +42,17 @@ return static function (ContainerConfigurator $di): void {
             ->tag('schema.validator')
 
         ->set('schema.array_item_validator', ArrayItemValidator::class)
-            ->args([service('validator'),service('schema.collection_info_extractor')])
+            ->args([
+                service('validator'),
+                service('schema.collection_info_extractor')
+            ])
             ->tag('schema.validator')
 
         ->set('schema.primitive_validator', PrimitiveValidator::class)
             ->args([service('validator')])
             ->tag('schema.validator')
 
-        ->set('schema.date_validator', DateValidator::class)
-            ->args([service('validator')])
+        ->set('schema.date_time_validator', DateTimeValidator::class)
             ->tag('schema.validator')
 
         ->set('schema.union_type_validator', UnionTypeValidator::class)

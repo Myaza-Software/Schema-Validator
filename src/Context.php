@@ -17,8 +17,8 @@ final class Context
     public function __construct(
         private string $rootPath,
         private string $rootType,
-        private ExecutionContextInterface $execution,
         private bool $strictTypes,
+        private ExecutionContextInterface $execution,
     ) {
     }
 

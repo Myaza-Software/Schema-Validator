@@ -20,6 +20,8 @@ final class CollectionInfoExtractor
     }
 
     /**
+     * @psalm-suppress DeprecatedMethod
+     *
      * @param class-string $class
      */
     public function getValueType(string $class, string $propertyName): ValueType

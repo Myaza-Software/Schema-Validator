@@ -19,7 +19,7 @@ final class SchemaTest extends TestCase
     {
         $this->expectExceptionCode(0);
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Not found class or interface:aza');
+        $this->expectExceptionMessage('Not found class or interface: aza');
 
         new Schema(['type' => 'aza']);
     }
@@ -32,6 +32,17 @@ final class SchemaTest extends TestCase
         $this->assertInstanceOf(Schema::class, new Schema(['type' => $type]));
     }
 
+    public function testSettingsConstraints(): void
+    {
+        $constraint = new Schema(['type' => StubClass::class]);
+
+        $this->assertEquals(['type'], $constraint->getRequiredOptions());
+        $this->assertEquals('class', $constraint->getTargets());
+    }
+
+    /**
+     * @return array<int, array<class-string>>
+     */
     public function typeDataProvider(): array
     {
         return [
@@ -45,6 +56,6 @@ final class StubClass
 {
 }
 
-final class StubInterface
+interface StubInterface
 {
 }

@@ -10,20 +10,31 @@ declare(strict_types=1);
 
 namespace SchemaValidator\Validator;
 
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
-use SchemaValidator\UuidExtractor\UuidExtractor;
+use function SchemaValidator\findUuidVersion;
 use Symfony\Component\Uid\AbstractUid;
 use Symfony\Component\Validator\Constraints\Uuid as SymfonyUuidConstraint;
+use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
 final class UuidValidator implements ValidatorInterface, PriorityInterface
 {
     private const INVALID_UUID_VERSION = 'This is not a valid UUID. Allowed Versions: %s';
+    private const UUID_TYPES           = [
+        UuidInterface::class,
+        AbstractUid::class,
+    ];
 
+    /**
+     * UuidValidator constructor.
+     *
+     * @param array<class-string|string> $uuids
+     */
     public function __construct(
         private SymfonyValidator $validator,
+        private array $uuids = self::UUID_TYPES,
     ) {
     }
 
@@ -35,18 +46,13 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
 
         $typeName = $type->getName();
 
-        if (!class_exists(Uuid::class) && !class_exists(AbstractUid::class)) {
-            return false;
+        foreach ($this->uuids as $uuid) {
+            if ((interface_exists($uuid) || class_exists($uuid)) && is_subclass_of($typeName, $uuid)) {
+                return true;
+            }
         }
 
-        $isRamseyUuid  = is_subclass_of($typeName, Uuid::class) || Uuid::class === $typeName;
-        $isSymfonyUuid = is_subclass_of($typeName, AbstractUid::class);
-
-        if (!$isRamseyUuid && !$isSymfonyUuid) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public function validate(Argument $argument, Context $context): void
@@ -54,7 +60,7 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
         $type = $argument->getType();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new \InvalidArgumentException('Invalid reflection named argument');
+            throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         /** @var string $value */
@@ -62,7 +68,7 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
         /** @var class-string $uuid */
         $uuid      = $type->getName();
         $execution = $context->getExecution();
-        $version   = UuidExtractor::findVersion($uuid);
+        $version   = findUuidVersion($uuid);
         $options   = [];
 
         if (null !== $version) {
@@ -70,9 +76,12 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
             $options['message']  = sprintf(self::INVALID_UUID_VERSION, $version);
         }
 
-        $this->validator->inContext($execution)->validate($value, [
-            new SymfonyUuidConstraint($options),
-        ]);
+        $this->validator->inContext($execution)
+            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
+            ->validate($value, [
+                new SymfonyUuidConstraint($options),
+            ])
+        ;
     }
 
     public static function getPriority(): int
