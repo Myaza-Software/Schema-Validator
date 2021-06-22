@@ -48,30 +48,30 @@ final class ArrayItemValidator implements ValidatorInterface
         $propertyPath = $argument->getName();
         $validator    = $this->validator->inContext($context->getExecution())->atPath($rootPath);
 
-        if (!$valueType->isBuiltin()) {
-            if ([] === $value || !array_is_list($value)) {
-                $validator->validate($value, new Schema([
-                    'type'        => $valueType->getType(),
-                    'rootPath'    => $propertyPath . '[]',
-                    'strictTypes' => $context->isStrictTypes(),
-                ]));
-
-                return;
-            }
-
-            foreach ($value as $key => $item) {
-                $validator->validate(is_array($item) ? $item : [$item], new Schema([
-                    'type'        => $valueType->getType(),
-                    'rootPath'    => $propertyPath . '[' . $key . ']',
-                    'strictTypes' => $context->isStrictTypes(),
-                ]));
-            }
+        if ($valueType->isBuiltin()) {
+            $validator->validate($value, new Collection([
+                new Type($valueType->getType()),
+            ]));
 
             return;
         }
 
-        $validator->validate($value, new Collection([
-            new Type($valueType->getType()),
-        ]));
+        if ([] === $value || !array_is_list($value)) {
+            $validator->validate($value, new Schema([
+                'type'        => $valueType->getType(),
+                'rootPath'    => $propertyPath . '[]',
+                'strictTypes' => $context->isStrictTypes(),
+            ]));
+
+            return;
+        }
+
+        foreach ($value as $key => $item) {
+            $validator->validate(is_array($item) ? $item : [$item], new Schema([
+                'type'        => $valueType->getType(),
+                'rootPath'    => $propertyPath . '[' . $key . ']',
+                'strictTypes' => $context->isStrictTypes(),
+            ]));
+        }
     }
 }

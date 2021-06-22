@@ -72,6 +72,7 @@ final class UnionTypeValidator implements ValidatorInterface
             '{{ type }}'  => $this->formatUnionType($unionType),
         ])
             ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
+            ->setInvalidValue($argument->getValueByArgumentName())
             ->setCode(Schema::INVALID_TYPE_ERROR)
             ->addViolation()
         ;

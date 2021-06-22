@@ -12,6 +12,9 @@ namespace SchemaValidator;
 
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class Context
 {
     public function __construct(

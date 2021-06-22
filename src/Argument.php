@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace SchemaValidator;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class Argument
 {
     public function __construct(

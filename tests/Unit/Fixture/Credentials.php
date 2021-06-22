@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace SchemaValidator\Test\Unit\Fixture;
 
 /**
- * Class Credentials
- *
  * @psalm-immutable
  */
 final class Credentials

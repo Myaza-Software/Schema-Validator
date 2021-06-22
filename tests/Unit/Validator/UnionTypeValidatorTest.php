@@ -11,14 +11,12 @@ declare(strict_types=1);
 namespace SchemaValidator\Test\Unit\Validator;
 
 use SchemaValidator\Context;
+use SchemaValidator\Schema;
 use SchemaValidator\Test\Unit\ArgumentBuilder;
 use SchemaValidator\Test\Unit\ReflectionClassWrapper;
-use SchemaValidator\Validator\DateTimeValidator;
-use SchemaValidator\Validator\MyCLabsEnumValidator;
-use SchemaValidator\Validator\ObjectValidator;
-use SchemaValidator\Validator\PrimitiveValidator;
+use SchemaValidator\Test\Unit\Stub\StubFailedValidator;
+use SchemaValidator\Test\Unit\Stub\StubSuccessValidator;
 use SchemaValidator\Validator\UnionTypeValidator;
-use SchemaValidator\Validator\UuidValidator;
 
 final class UnionTypeValidatorTest extends ValidatorTestCase
 {
@@ -74,46 +72,47 @@ final class UnionTypeValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
     }
 
-//    /**
-//     * @dataProvider successValidateDataProvider
-//     */
-//    public function testSuccessValidate(Argument $argument, array $other): void
-//    {
-//
-//    }
-//
-//    /**
-//     * @throws \ReflectionException
-//     */
-//    public function successValidateDataProvider(): iterable
-//    {
-//
-//    }
-//
-//
-//    /**
-//     * @dataProvider failedValidateDataProvider
-//     */
-//    public function testFailedValidate(Argument $argument, array $other): void
-//    {
-//
-//    }
-//
-//    /**
-//     * @throws \ReflectionException
-//     */
-//    public function failedValidateDataProvider(): iterable
-//    {
-//
-//    }
-
-    private function getValidators(): iterable
+    public function testSuccessValidate(): void
     {
-        yield new DateTimeValidator();
-        yield new PrimitiveValidator($this->validator);
-        yield new UuidValidator($this->validator);
-        yield new MyCLabsEnumValidator($this->validator);
-        yield new ObjectValidator($this->validator);
+        ['dtoWithUnionType' => $dtoWithUnionType] = $this->getObjects();
+        $validator                                   = new UnionTypeValidator([new StubSuccessValidator()]);
+
+        $constraint = new Schema(['type' => $dtoWithUnionType::class]);
+        $argument   = ArgumentBuilder::build($dtoWithUnionType, ['createdAt' => '12.01.2021']);
+        $context    = new Context('', $dtoWithUnionType::class, false, $this->executionContext);
+
+        $this->executionContext->setConstraint($constraint);
+
+        $validator->validate($argument, $context);
+
+        $this->assertNoViolation();
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testFailedValidate(): void
+    {
+        ['dtoWithUnionType' => $dtoWithUnionType] = $this->getObjects();
+        $validator                                   = new UnionTypeValidator([new StubFailedValidator()]);
+
+        $value      = [50];
+        $constraint = new Schema(['type' => $dtoWithUnionType::class]);
+        $argument   = ArgumentBuilder::build($dtoWithUnionType, ['createdAt' => $value]);
+        $context    = new Context('', $dtoWithUnionType::class, false, $this->executionContext);
+
+        $this->executionContext->setConstraint($constraint);
+
+        $validator->validate($argument, $context);
+
+        $this->buildViolation('This value should be of type {{ type }}.', $constraint)
+            ->atPath('createdAt')
+            ->setParameter('{{ value }}', 'array')
+            ->setParameter('{{ type }}', 'DateTime|string')
+            ->setInvalidValue($value)
+            ->setCode('24231bed-2239-420e-add0-ae2a80ba360c')
+            ->assertRaised()
+        ;
     }
 
     /**
