@@ -16,7 +16,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
-      - name: PHPStan
-        uses: docker://oskarstark/phpstan-ga
+      - name: Psalm
+        uses: docker://vimeo/psalm-github-actions
         env:
           REQUIRE_DEV: true
