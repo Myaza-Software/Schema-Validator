@@ -1,0 +1,22 @@
+name: Stats-Analysis CI
+on: [ push, pull_request ]
+
+jobs:
+  mutation:
+    name: PHP ${{ matrix.php }}-${{ matrix.os }} stats-analysis
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        php:
+          - "8.0"
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: PHPStan
+        uses: docker://oskarstark/phpstan-ga
+        env:
+          REQUIRE_DEV: true
