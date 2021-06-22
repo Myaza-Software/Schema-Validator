@@ -43,6 +43,6 @@ jobs:
       - name: Run infection
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
-          vendor/bin/infection --threads=4
+          vendor/bin/roave-infection-static-analysis-plugin --threads=10
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

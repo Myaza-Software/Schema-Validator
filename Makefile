@@ -5,4 +5,4 @@ analysis-code:
 	@ - ./vendor/bin/psalm --show-info=true
 
 infection:
-	@ - XDEBUG_MODE=coverage ./vendor/bin/roave-infection-static-analysis-plugin --show-mutations
+	@ - XDEBUG_MODE=coverage ./vendor/bin/roave-infection-static-analysis-plugin --threads=10 --show-mutations
