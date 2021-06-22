@@ -18,5 +18,6 @@ jobs:
 
       - name: Psalm
         uses: docker://vimeo/psalm-github-actions
-        env:
-          REQUIRE_DEV: true
+        with:
+          composer_require_dev: true
+          composer_ignore_platform_reqs: true
