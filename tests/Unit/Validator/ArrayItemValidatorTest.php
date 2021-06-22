@@ -84,11 +84,11 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     /**
      * @dataProvider validateArrayOfStringDataProvider
      */
-    public function testValidateArrayOfString(Argument $argument, array $other, bool $isSuccess): void
+    public function testValidateArrayOfString(Argument $argument, string $type, bool $isSuccess): void
     {
         $collectionExtractor = $this->createMock(CollectionInfoExtractorInterface::class);
         $validator           = new ArrayItemValidator($this->validator, $collectionExtractor);
-        $context             = new Context(...$other + ['execution' => $this->executionContext]);
+        $context             = new Context('', $type, true, $this->executionContext);
 
         $collectionExtractor->method('getValueType')
             ->willReturn(new ValueType('string', true))
@@ -131,7 +131,7 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool},2: bool>
+     * @return array<int,array{0: Argument, 1: string,2: bool}>
      */
     public function validateArrayOfStringDataProvider(): array
     {
@@ -140,12 +140,12 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
         return [
             [
                 ArgumentBuilder::build($dtoWithArrayOfStringArg, ['tags' => [1, 2, 3, 4]]),
-                ['rootPath' => '', 'rootType' => $dtoWithArrayOfStringArg::class, 'strictTypes' => true],
+                $dtoWithArrayOfStringArg::class,
                 false,
             ],
             [
                 ArgumentBuilder::build($dtoWithArrayOfStringArg, ['tags' => ['aza', 'root', 'crm']]),
-                ['rootPath' => '', 'rootType' => $dtoWithArrayOfStringArg::class, 'strictTypes' => true],
+                $dtoWithArrayOfStringArg::class,
                 true,
             ],
         ];
@@ -154,13 +154,13 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     /**
      * @dataProvider validateArrayOfObjectDataProvider
      */
-    public function testValidateArrayOfObject(Argument $argument, array $other, string $rootPath): void
+    public function testValidateArrayOfObject(Argument $argument, string $type, string $rootPath): void
     {
         $this->mockingValidator();
 
         $collectionExtractor = $this->createMock(CollectionInfoExtractorInterface::class);
         $validator           = new ArrayItemValidator($this->validator, $collectionExtractor);
-        $context             = new Context(...$other + ['execution' => $this->executionContext]);
+        $context             = new Context('', $type, true, $this->executionContext);
 
         $collectionExtractor->method('getValueType')
             ->willReturn(new ValueType(Customer::class, false))
@@ -180,7 +180,7 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool},2: bool>
+     * @return array<int,array{0: Argument, 1: string,2: string}>
      */
     public function validateArrayOfObjectDataProvider(): array
     {
@@ -189,17 +189,17 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
         return [
             [
                 ArgumentBuilder::build($dtoWithArrayOfObjectArg, ['customers' => []]),
-                ['rootPath' => '', 'rootType' => $dtoWithArrayOfObjectArg::class, 'strictTypes' => true],
+                $dtoWithArrayOfObjectArg::class,
                 'customers[]',
             ],
             [
                 ArgumentBuilder::build($dtoWithArrayOfObjectArg, ['customers' => ['nick' => 'aza', 'login' => 'root', 'work' => 'crm']]),
-                ['rootPath' => '', 'rootType' => $dtoWithArrayOfObjectArg::class, 'strictTypes' => true],
+                $dtoWithArrayOfObjectArg::class,
                 'customers[]',
             ],
             [
                 ArgumentBuilder::build($dtoWithArrayOfObjectArg, ['customers' => [['aza'], ['root'], ['crm']]]),
-                ['rootPath' => '', 'rootType' => $dtoWithArrayOfObjectArg::class, 'strictTypes' => true],
+                $dtoWithArrayOfObjectArg::class,
                 'customers[0]',
             ],
         ];
