@@ -20,4 +20,4 @@ jobs:
         uses: docker://vimeo/psalm-github-actions
         env:
           REQUIRE_DEV: true
-          CHECK_PLATFORM_REQUIREMENTS: true
+          CHECK_PLATFORM_REQUIREMENTS: false
