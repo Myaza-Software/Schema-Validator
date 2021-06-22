@@ -11,10 +11,10 @@ declare(strict_types=1);
 namespace SchemaValidator\Validator;
 
 use SchemaValidator\Argument;
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorInterface;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
-use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
@@ -22,7 +22,7 @@ final class ArrayItemValidator implements ValidatorInterface
 {
     public function __construct(
         private SymfonyValidator $validator,
-        private CollectionInfoExtractor $extractor,
+        private CollectionInfoExtractorInterface $extractor,
     ) {
     }
 
@@ -49,7 +49,7 @@ final class ArrayItemValidator implements ValidatorInterface
         $validator    = $this->validator->inContext($context->getExecution())->atPath($rootPath);
 
         if ($valueType->isBuiltin()) {
-            $validator->validate($value, new Collection([
+            $validator->validate($value, new All([
                 new Type($valueType->getType()),
             ]));
 

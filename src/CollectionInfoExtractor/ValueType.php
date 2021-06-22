@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace SchemaValidator\CollectionInfoExtractor;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class ValueType
 {
     public function __construct(

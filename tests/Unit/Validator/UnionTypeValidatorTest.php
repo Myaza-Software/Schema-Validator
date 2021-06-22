@@ -72,10 +72,13 @@ final class UnionTypeValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function testSuccessValidate(): void
     {
         ['dtoWithUnionType' => $dtoWithUnionType] = $this->getObjects();
-        $validator                                   = new UnionTypeValidator([new StubSuccessValidator()]);
+        $validator                                = new UnionTypeValidator([new StubSuccessValidator()]);
 
         $constraint = new Schema(['type' => $dtoWithUnionType::class]);
         $argument   = ArgumentBuilder::build($dtoWithUnionType, ['createdAt' => '12.01.2021']);
@@ -94,7 +97,7 @@ final class UnionTypeValidatorTest extends ValidatorTestCase
     public function testFailedValidate(): void
     {
         ['dtoWithUnionType' => $dtoWithUnionType] = $this->getObjects();
-        $validator                                   = new UnionTypeValidator([new StubFailedValidator()]);
+        $validator                                = new UnionTypeValidator([new StubFailedValidator()]);
 
         $value      = [50];
         $constraint = new Schema(['type' => $dtoWithUnionType::class]);
@@ -107,8 +110,10 @@ final class UnionTypeValidatorTest extends ValidatorTestCase
 
         $this->buildViolation('This value should be of type {{ type }}.', $constraint)
             ->atPath('createdAt')
-            ->setParameter('{{ value }}', 'array')
-            ->setParameter('{{ type }}', 'DateTime|string')
+            ->setParameters([
+                '{{ value }}' => 'array',
+                '{{ type }}'  => 'DateTime|string',
+            ])
             ->setInvalidValue($value)
             ->setCode('24231bed-2239-420e-add0-ae2a80ba360c')
             ->assertRaised()

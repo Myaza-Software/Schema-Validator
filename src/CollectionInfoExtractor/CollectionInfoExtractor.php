@@ -12,7 +12,7 @@ namespace SchemaValidator\CollectionInfoExtractor;
 
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
-final class CollectionInfoExtractor
+final class CollectionInfoExtractor implements CollectionInfoExtractorInterface
 {
     public function __construct(
         private PropertyInfoExtractorInterface $propertyInfoExtractor
@@ -21,8 +21,6 @@ final class CollectionInfoExtractor
 
     /**
      * @psalm-suppress DeprecatedMethod
-     *
-     * @param class-string $class
      */
     public function getValueType(string $class, string $propertyName): ValueType
     {
