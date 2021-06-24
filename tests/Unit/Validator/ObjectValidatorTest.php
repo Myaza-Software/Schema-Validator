@@ -31,7 +31,6 @@ final class ObjectValidatorTest extends ValidatorTestCase
         $this->assertEquals(-1, ObjectValidator::priority());
     }
 
-
     /**
      * @dataProvider validateDataProvider
      *

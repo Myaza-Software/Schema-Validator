@@ -25,6 +25,9 @@ final class FormatValueTest extends TestCase
         $this->assertEquals($result, formatValue($value, $format));
     }
 
+    /**
+     * @return array{0: array{0: array<empty, empty>, 1: string}, 1: array{0: string, 1: string}, 2: array{0: null, 1: string}, 3: array{0: true, 1: string}, 4: array{0: false, 1: string}, 5: array{0: false|resource, 1: string}, 6: array{0: \stdClass, 1: string}, 7: array{0: StubStringable, 1: string, 2: int}, 8: array{0: \DateTimeImmutable, 1: string, 2: int}}
+     */
     public function formatValueDataProvider(): array
     {
         return [

@@ -42,6 +42,9 @@ final class SchemaExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasService($serviceId, $class);
     }
 
+    /**
+     * @return iterable<int, array{0: string, 1:class-string}>
+     */
     public function loadedServicesDataProvider(): iterable
     {
         return [
