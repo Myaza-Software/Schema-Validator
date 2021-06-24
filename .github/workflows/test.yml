@@ -25,6 +25,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
+          extensions: intl
           php-version: ${{ matrix.php }}
           ini-values: date.timezone='UTC'
           coverage: pcov
