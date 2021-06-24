@@ -109,16 +109,19 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
             ->setParameters(['{{ value }}' => '1', '{{ type }}' => 'string'])
             ->setInvalidValue(1)
             ->setCode('ba785a8c-82cb-4283-967c-3cf342181b40')
+
             ->buildNextViolation('This value should be of type {{ type }}.')
             ->atPath('[1]')
             ->setParameters(['{{ value }}' => '2', '{{ type }}' => 'string'])
             ->setInvalidValue(2)
             ->setCode('ba785a8c-82cb-4283-967c-3cf342181b40')
+
             ->buildNextViolation('This value should be of type {{ type }}.')
             ->atPath('[2]')
             ->setParameters(['{{ value }}' => '3', '{{ type }}' => 'string'])
             ->setInvalidValue(3)
             ->setCode('ba785a8c-82cb-4283-967c-3cf342181b40')
+
             ->buildNextViolation('This value should be of type {{ type }}.')
             ->atPath('[3]')
             ->setParameters(['{{ value }}' => '4', '{{ type }}' => 'string'])

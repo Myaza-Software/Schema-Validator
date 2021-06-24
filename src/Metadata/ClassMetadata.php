@@ -12,7 +12,10 @@ namespace SchemaValidator\Metadata;
 
 use Symfony\Component\Serializer\Mapping\AttributeMetadataInterface;
 
-final class ClassMetadata implements ClassMetadataInterface
+/**
+ * @codeCoverageIgnore
+ */
+final class ClassMetadata
 {
     /**
      * ClassMetaData constructor.

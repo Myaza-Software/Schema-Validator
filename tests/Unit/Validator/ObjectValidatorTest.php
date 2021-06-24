@@ -26,6 +26,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ObjectValidatorTest extends ValidatorTestCase
 {
+    public function testEqualPriority(): void
+    {
+        $this->assertEquals(-1, ObjectValidator::priority());
+    }
+
+
     /**
      * @dataProvider validateDataProvider
      *

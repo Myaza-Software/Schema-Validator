@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Uuid as SymfonyUuidConstraint;
 use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
-final class UuidValidator implements ValidatorInterface, PriorityInterface
+final class UuidValidator implements ValidatorInterface
 {
     private const INVALID_UUID_VERSION = 'This is not a valid UUID. Allowed Versions: %s';
     private const UUID_TYPES           = [
@@ -82,10 +82,5 @@ final class UuidValidator implements ValidatorInterface, PriorityInterface
                 new SymfonyUuidConstraint($options),
             ])
         ;
-    }
-
-    public static function getPriority(): int
-    {
-        return 2;
     }
 }

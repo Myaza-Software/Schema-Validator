@@ -45,4 +45,14 @@ final class ReflectionClassWrapper
 
         return $parameters[0];
     }
+
+    /**
+     * @throws \ReflectionException
+     *
+     * @return \ReflectionParameter[]
+     */
+    public function getParametersConstructor(): array
+    {
+        return $this->reflection->getMethod('__construct')->getParameters();
+    }
 }

@@ -73,18 +73,17 @@ final class SchemaValidator extends ConstraintValidator
         $attributes = $metadata->getAttributes();
 
         foreach ($metadata->getParameters() as $parameter) {
-            $reflectionType   = $parameter->getType();
-            $rootPropertyName = ($attributes[$parameter->name] ?? null)?->getSerializedName() ?? $parameter->name;
+            $reflectionType = $parameter->getType();
+            $propertyName   = ($attributes[$parameter->name] ?? null)?->getSerializedName() ?? $parameter->name;
 
             if (null === $reflectionType) {
                 continue;
             }
 
-            if (!array_key_exists($rootPropertyName, $value) && !$parameter->isOptional()) {
-                $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING, [
-                    '{{ field }}', $this->formatValue($rootPropertyName),
-                ])
-                    ->atPath(PropertyPath::append($constraint->rootPath, $rootPropertyName))
+            if (!array_key_exists($propertyName, $value) && !$parameter->isOptional()) {
+                $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING)
+                    ->setParameter('{{ field }}', $this->formatValue($propertyName))
+                    ->atPath(PropertyPath::append($constraint->rootPath, $propertyName))
                     ->setCode(Schema::MISSING_FILED_CODE)
                     ->setInvalidValue(null)
                     ->addViolation()
@@ -98,7 +97,7 @@ final class SchemaValidator extends ConstraintValidator
                     continue;
                 }
 
-                $argument = new Argument($rootPropertyName, $value, $reflectionType);
+                $argument = new Argument($propertyName, $value, $reflectionType);
                 $context  = new Context($constraint->rootPath, $constraint->type, $constraint->strictTypes, $this->context);
 
                 $validator->validate($argument, $context);

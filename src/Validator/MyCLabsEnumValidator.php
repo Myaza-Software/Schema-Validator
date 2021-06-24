@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
-final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterface
+final class MyCLabsEnumValidator implements ValidatorInterface
 {
     public function __construct(
         private SymfonyValidator $validator,
@@ -59,10 +59,5 @@ final class MyCLabsEnumValidator implements ValidatorInterface, PriorityInterfac
                 ]),
             ])
         ;
-    }
-
-    public static function getPriority(): int
-    {
-        return 2;
     }
 }

@@ -57,7 +57,7 @@ final class ObjectValidator implements ValidatorInterface, PriorityInterface
         ;
     }
 
-    public static function getPriority(): int
+    public static function priority(): int
     {
         return -1;
     }

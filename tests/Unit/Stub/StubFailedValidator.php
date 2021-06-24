@@ -27,10 +27,13 @@ final class StubFailedValidator implements ValidatorInterface
     public function validate(Argument $argument, Context $context): void
     {
         $execution = $context->getExecution();
+        $type      = $argument->getType();
+
+        assert($type instanceof \ReflectionNamedType);
 
         $execution->buildViolation(Schema::INVALID_TYPE, [
             '{{ value }}' => formatValue($argument->getValueByArgumentName()),
-            '{{ type }}'  => 'string',
+            '{{ type }}'  => $type->getName(),
         ])
             ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->setCode(Schema::INVALID_TYPE_ERROR)

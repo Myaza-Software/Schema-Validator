@@ -12,5 +12,5 @@ namespace SchemaValidator\Validator;
 
 interface PriorityInterface
 {
-    public static function getPriority(): int;
+    public static function priority(): int;
 }

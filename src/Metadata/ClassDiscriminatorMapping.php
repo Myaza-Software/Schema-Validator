@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace SchemaValidator\Metadata;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class ClassDiscriminatorMapping
 {
     /**

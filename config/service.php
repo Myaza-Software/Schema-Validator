@@ -67,7 +67,7 @@ return static function (ContainerConfigurator $di): void {
 
         ->set('schema.validator', SchemaValidator::class)
             ->args([
-                tagged_iterator('schema.validator', defaultPriorityMethod: 'getPriority'),
+                tagged_iterator('schema.validator', defaultPriorityMethod: 'priority'),
                 service('schema.class_metadata_factory')
             ])
             ->tag('validator.constraint_validator')

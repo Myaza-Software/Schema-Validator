@@ -8,17 +8,13 @@
 
 declare(strict_types=1);
 
-namespace SchemaValidator\Metadata;
+namespace SchemaValidator\Test\Unit\Fixture;
 
-/**
- * @codeCoverageIgnore
- */
-final class Property
+final class User
 {
     public function __construct(
         private string $name,
-        private ?string $invalidValue,
-        private bool $exits = false,
+        private bool $isActive = false,
     ) {
     }
 
@@ -27,13 +23,8 @@ final class Property
         return $this->name;
     }
 
-    public function getInvalidValue(): ?string
+    public function isActive(): bool
     {
-        return $this->invalidValue;
-    }
-
-    public function isExits(): bool
-    {
-        return $this->exits;
+        return $this->isActive;
     }
 }

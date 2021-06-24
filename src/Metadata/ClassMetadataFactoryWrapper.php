@@ -21,7 +21,7 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
     ) {
     }
 
-    public function getMetadataFor(string $type, array $values): ClassMetadataInterface
+    public function getMetadataFor(string $type, array $values): ClassMetadata
     {
         $metadata        = $this->classMetadataFactory->getMetadataFor($type);
         $reflectionClass = $metadata->getReflectionClass();
@@ -36,7 +36,7 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
         $mapping = $metadata->getClassDiscriminatorMapping();
 
         if (null === $mapping) {
-            throw new \RuntimeException('Not found constructor');
+            throw new \RuntimeException('Not found constructor class:' . $type);
         }
 
         $propertyPath = $mapping->getTypeProperty();
@@ -67,7 +67,7 @@ final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperIn
         $reflectionClass = $metadata->getReflectionClass();
 
         if (!$reflectionClass->hasMethod('__construct')) {
-            throw new \RuntimeException('Not found constructor');
+            throw new \RuntimeException('Not found constructor class:' . $type);
         }
 
         return new ClassMetadata(

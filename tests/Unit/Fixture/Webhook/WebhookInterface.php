@@ -8,9 +8,8 @@
 
 declare(strict_types=1);
 
-namespace SchemaValidator\Metadata;
+namespace SchemaValidator\Test\Unit\Fixture\Webhook;
 
-interface ClassMetadataFactoryWrapperInterface
+interface WebhookInterface
 {
-    public function getMetadataFor(string $type, array $values): ClassMetadata;
 }
