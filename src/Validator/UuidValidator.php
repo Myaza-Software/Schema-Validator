@@ -15,6 +15,7 @@ use SchemaValidator\Argument;
 use SchemaValidator\Context;
 use function SchemaValidator\findUuidVersion;
 use Symfony\Component\Uid\AbstractUid;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid as SymfonyUuidConstraint;
 use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
@@ -69,7 +70,7 @@ final class UuidValidator implements ValidatorInterface
         $uuid      = $type->getName();
         $execution = $context->getExecution();
         $version   = findUuidVersion($uuid);
-        $options   = [];
+        $options   = ['strict' => $context->isStrictTypes()];
 
         if (null !== $version) {
             $options['versions'] = [$version];
@@ -79,6 +80,7 @@ final class UuidValidator implements ValidatorInterface
         $this->validator->inContext($execution)
             ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
             ->validate($value, [
+                new NotBlank(),
                 new SymfonyUuidConstraint($options),
             ])
         ;

@@ -14,6 +14,7 @@ final class User
 {
     public function __construct(
         private string $name,
+        private ?string $uuid,
         private bool $isActive = false,
     ) {
     }
@@ -26,5 +27,10 @@ final class User
     public function isActive(): bool
     {
         return $this->isActive;
+    }
+
+    public function getUuid(): ?string
+    {
+        return $this->uuid;
     }
 }

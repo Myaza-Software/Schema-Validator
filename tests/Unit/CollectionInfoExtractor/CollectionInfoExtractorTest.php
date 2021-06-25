@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
 use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorInterface;
 use SchemaValidator\CollectionInfoExtractor\ValueType;
+use SchemaValidator\Test\Unit\Stub\Type as TypeStub;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\PropertyInfo\Type;
 
@@ -72,7 +73,9 @@ final class CollectionInfoExtractorTest extends TestCase
     }
 
     /**
-     * @return \Generator<int, array{0: array{0: Type, 1: Type}, 1: ValueType}, mixed, void>
+     * @psalm-suppress MoreSpecificReturnType
+     *
+     * @return \Generator<int, array{0: array{0: Type|TypeStub, 1: Type|TypeStub}, 1: ValueType}, mixed, void>
      */
     public function getValueTypeDataProvider(): iterable
     {
@@ -89,6 +92,39 @@ final class CollectionInfoExtractorTest extends TestCase
                 ]),
             ],
             new ValueType(\stdClass::class, false),
+        ];
+
+        yield [
+            [],
+            new ValueType(null, true),
+        ];
+
+        yield [
+            [
+                new TypeStub('int', collection: false),
+                new TypeStub('array', collection: true, collectionValueType: [
+                    new TypeStub('object', class: \stdClass::class),
+                ]),
+            ],
+            new ValueType(\stdClass::class, false),
+        ];
+
+        yield [
+            [
+                new TypeStub('int', collection: false),
+                new TypeStub('array', collection: true, collectionValueType: [
+                    new TypeStub('string'),
+                ]),
+            ],
+            new ValueType('string', true),
+        ];
+
+        yield [
+            [
+                new TypeStub('int', collection: false),
+                new TypeStub('array', collection: true, collectionValueType: []),
+            ],
+            new ValueType(null, true),
         ];
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace SchemaValidator\Test\Unit;
 
+use Ramsey\Uuid\Uuid;
 use function SchemaValidator\formatValue;
 use SchemaValidator\Metadata\ClassDiscriminatorMapping;
 use SchemaValidator\Metadata\ClassMetadata;
@@ -160,7 +161,7 @@ final class SchemaValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidateOptionalParameter(): void
     {
-        $dto           = new User('Vlad Shashkov');
+        $dto           = new User('Vlad Shashkov', null);
         $classMetadata = new ClassMetadata(
             [],
             ReflectionClassWrapper::analyze($dto)->getParametersConstructor(),
@@ -171,9 +172,56 @@ final class SchemaValidatorTest extends ConstraintValidatorTestCase
             ->willReturn($classMetadata)
         ;
 
-        $this->validator->validate(['name' => 'aza'], new Schema(['type' => $dto::class]));
+        $this->validator->validate(['name' => 'aza', 'uuid' => null], new Schema(['type' => $dto::class]));
 
         $this->assertNoViolation();
+    }
+
+    /**
+     * @dataProvider validateNullableParameterDataProvider
+     */
+    public function testValidateNullableParameter(object $dto, array $values): void
+    {
+        $classMetadata = new ClassMetadata(
+            [],
+            ReflectionClassWrapper::analyze($dto)->getParametersConstructor(),
+            null
+        );
+
+        $this->classMetadataFactoryWrapper->method('getMetadataFor')
+            ->willReturn($classMetadata)
+        ;
+
+        $this->validator->validate($values, new Schema(['type' => $dto::class]));
+
+        $this->assertNoViolation();
+    }
+
+    /**
+     * @return array<int,array{0: object, 1: array}>
+     */
+    public function validateNullableParameterDataProvider(): array
+    {
+        return [
+            [
+                new class (null) {
+                    public function __construct(
+                        private ?Uuid $uuid
+                    ) {
+                    }
+                },
+                ['uuid' => null],
+            ],
+            [
+                new class (null) {
+                    public function __construct(
+                        private ?Uuid $uuid = null
+                    ) {
+                    }
+                },
+                [],
+            ],
+        ];
     }
 
     /**
@@ -186,7 +234,7 @@ final class SchemaValidatorTest extends ConstraintValidatorTestCase
         $this->addValidators = true;
         self::setUp();
 
-        $dto           = new User('Vlad Shashkov');
+        $dto           = new User('Vlad Shashkov', null);
         $classMetadata = new ClassMetadata(
             [],
             ReflectionClassWrapper::analyze($dto)->getParametersConstructor(),
@@ -197,7 +245,7 @@ final class SchemaValidatorTest extends ConstraintValidatorTestCase
             ->willReturn($classMetadata)
         ;
 
-        $this->validator->validate(['name' => 1], new Schema(['type' => $dto::class, 'strictTypes' => true]));
+        $this->validator->validate(['name' => 1, 'uuid' => null], new Schema(['type' => $dto::class, 'strictTypes' => true]));
 
         $this->buildViolation('This value should be of type {{ type }}.')
             ->atPath('property.path.name')

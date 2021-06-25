@@ -31,10 +31,12 @@ composer install myaza-software/schema-validator
 ```
 
 ## Supported type:
-- string,float,int,array
+- String,Float,Int,Array
+- Union type
 - Array of object/string
 - Uuid symfony/ramsey
 - Enum MyCLabs
+- DateTimeInterface
 
 
 ## Example
@@ -96,7 +98,7 @@ final class ValidateDtoCommand extends Command
 {
   "type": "https:\/\/symfony.com\/errors\/validation",
   "title": "Validation Failed",
-  "detail": "price.vault.value: This value should be of type string.\nprice.vault.names[0].value: This value should be of type string.\nprice.vault.names[0].createdAt: This is not a valid date.\nprice.value: This value should be of type float.\ndate: This is not a valid date.\ntype: This value should be of type string.",
+  "detail": "price.vault.value: This value should be of type string.\nprice.vault.names[0].value: This value should be of type string.\nprice.vault.names[0].createdAt: This is not a valid date.\nprice.value: This value should be of type float.\nuuid: This value should not be blank.\ndate: This is not a valid date.\ntype: This value should be of type string.",
   "violations": [
     {
       "propertyPath": "price.vault.value",
@@ -130,6 +132,14 @@ final class ValidateDtoCommand extends Command
         "{{ type }}": "float"
       },
       "type": "urn:uuid:ba785a8c-82cb-4283-967c-3cf342181b40"
+    },
+    {
+      "propertyPath": "uuid",
+      "title": "This value should not be blank.",
+      "parameters": {
+        "{{ value }}": "\"\""
+      },
+      "type": "urn:uuid:c1051bb4-d103-4f74-8988-acbcafc7fdc3"
     },
     {
       "propertyPath": "date",

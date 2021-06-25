@@ -92,6 +92,10 @@ final class SchemaValidator extends ConstraintValidator
                 continue;
             }
 
+            if (!$parameter->isOptional() && $parameter->allowsNull() && null === $value[$propertyName]) {
+                continue;
+            }
+
             foreach ($this->validators as $validator) {
                 if (!$validator->support($reflectionType)) {
                     continue;
