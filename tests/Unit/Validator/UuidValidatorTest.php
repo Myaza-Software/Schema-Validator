@@ -89,7 +89,7 @@ final class UuidValidatorTest extends ValidatorTestCase
      * @psalm-suppress MixedArgument
      * @dataProvider successValidateDataProvider
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testSuccessValidate(Argument $argument, array $other): void
     {
@@ -104,14 +104,14 @@ final class UuidValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return \Generator<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}}>
+     * @return \Generator<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool}}>
      */
     public function successValidateDataProvider(): \Generator
     {
         foreach ($this->getObjectsWithUuid() as $dto) {
             yield [
                 ArgumentBuilder::build($dto, ['id' => (string) $dto->id]),
-                ['rootPath' => '', 'rootType' => $dto::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dto::class, 'strictTypes' => true],
             ];
         }
     }
@@ -120,7 +120,7 @@ final class UuidValidatorTest extends ValidatorTestCase
      * @psalm-suppress MixedArgument
      * @dataProvider failedValidateDataProvider
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testFailedValidate(Argument $argument, array $other, ?int $version): void
     {
@@ -140,9 +140,9 @@ final class UuidValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
 
         $this->buildViolation($message, $constraint)
-            ->atPath($argument->getName())
-            ->setParameter('{{ value }}', formatValue($argument->getValueByArgumentName()))
-            ->setInvalidValue($argument->getValueByArgumentName())
+            ->atPath($argument->name())
+            ->setParameter('{{ value }}', formatValue($argument->currentValue()))
+            ->setInvalidValue($argument->currentValue())
             ->setCode($version ? '21ba13b4-b185-4882-ac6f-d147355987eb' : '51120b12-a2bc-41bf-aa53-cd73daf330d0')
             ->assertRaised()
         ;
@@ -151,7 +151,7 @@ final class UuidValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return \Generator<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}, 2: ?int}>
+     * @return \Generator<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool}, 2: ?int}>
      */
     public function failedValidateDataProvider(): iterable
     {
@@ -162,7 +162,7 @@ final class UuidValidatorTest extends ValidatorTestCase
             if (null == $version) {
                 yield [
                     ArgumentBuilder::build($dto, ['id' => 'aza']),
-                    ['rootPath' => '', 'rootType' => $dto::class, 'strictTypes' => true],
+                    ['path' => '', 'type' => $dto::class, 'strictTypes' => true],
                     $version,
                 ];
 
@@ -171,7 +171,7 @@ final class UuidValidatorTest extends ValidatorTestCase
 
             yield [
                 ArgumentBuilder::build($dto, ['id' => (string) (6 !== $version ? SymfonyUuid::v6() : SymfonyUuid::v4())]),
-                ['rootPath' => '', 'rootType' => $dto::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dto::class, 'strictTypes' => true],
                 $version,
             ];
         }

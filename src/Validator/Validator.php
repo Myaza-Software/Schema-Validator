@@ -11,9 +11,10 @@ declare(strict_types=1);
 namespace SchemaValidator\Validator;
 
 use SchemaValidator\Argument;
+use SchemaValidator\CircularReference\SupportCircularReferenceStorage;
 use SchemaValidator\Context;
 
-interface ValidatorInterface
+interface Validator extends SupportCircularReferenceStorage
 {
     public function support(\ReflectionType $type): bool;
 

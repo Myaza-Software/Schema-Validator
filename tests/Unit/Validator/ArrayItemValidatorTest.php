@@ -11,7 +11,8 @@ declare(strict_types=1);
 namespace SchemaValidator\Test\Unit\Validator;
 
 use SchemaValidator\Argument;
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorInterface;
+use SchemaValidator\CircularReference\InMemoryCircularReferenceDetector;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
 use SchemaValidator\CollectionInfoExtractor\ValueType;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
@@ -33,8 +34,8 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
      */
     public function testSupport(\ReflectionType $type, bool $isSupport): void
     {
-        $collectionExtractor = $this->createMock(CollectionInfoExtractorInterface::class);
-        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor);
+        $collectionExtractor = $this->createMock(CollectionInfoExtractor::class);
+        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor, new InMemoryCircularReferenceDetector());
 
         $this->assertEquals($isSupport, $validator->support($type));
     }
@@ -66,8 +67,8 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     public function testValidateArrayOfNullType(): void
     {
         ['dtoWithArrayOfStringArg' => $dtoWithArrayOfStringArg] = $this->getObjects();
-        $collectionExtractor                                    = $this->createMock(CollectionInfoExtractorInterface::class);
-        $validator                                              = new ArrayItemValidator($this->validator, $collectionExtractor);
+        $collectionExtractor                                    = $this->createMock(CollectionInfoExtractor::class);
+        $validator                                              = new ArrayItemValidator($this->validator, $collectionExtractor, new InMemoryCircularReferenceDetector());
 
         $collectionExtractor->method('getValueType')
             ->willReturn(new ValueType(null, true))
@@ -86,8 +87,8 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
      */
     public function testValidateArrayOfString(Argument $argument, string $type, bool $isSuccess): void
     {
-        $collectionExtractor = $this->createMock(CollectionInfoExtractorInterface::class);
-        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor);
+        $collectionExtractor = $this->createMock(CollectionInfoExtractor::class);
+        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor, new InMemoryCircularReferenceDetector());
         $context             = new Context('', $type, true, $this->executionContext);
 
         $collectionExtractor->method('getValueType')
@@ -161,8 +162,8 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
     {
         $this->mockingValidator();
 
-        $collectionExtractor = $this->createMock(CollectionInfoExtractorInterface::class);
-        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor);
+        $collectionExtractor = $this->createMock(CollectionInfoExtractor::class);
+        $validator           = new ArrayItemValidator($this->validator, $collectionExtractor, new InMemoryCircularReferenceDetector());
         $context             = new Context('', $type, true, $this->executionContext);
 
         $collectionExtractor->method('getValueType')
@@ -172,7 +173,7 @@ final class ArrayItemValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
 
         $constraint = new Schema([
-            'strictTypes' => $context->isStrictTypes(),
+            'strictTypes' => $context->strictTypes(),
             'rootPath'    => $rootPath,
             'type'        => Customer::class,
         ], groups: ['Default']);

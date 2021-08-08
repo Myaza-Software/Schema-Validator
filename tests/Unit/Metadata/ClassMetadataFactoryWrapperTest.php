@@ -12,8 +12,8 @@ namespace SchemaValidator\Test\Unit\Metadata;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use SchemaValidator\Metadata\ClassMetadataFactory;
 use SchemaValidator\Metadata\ClassMetadataFactoryWrapper;
-use SchemaValidator\Metadata\ClassMetadataFactoryWrapperInterface;
 use SchemaValidator\Test\Unit\Fixture\Webhook\RefundWebhook;
 use SchemaValidator\Test\Unit\Fixture\Webhook\SuccessPaymentWebhook;
 use SchemaValidator\Test\Unit\Fixture\Webhook\WebhookInterface;
@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
 final class ClassMetadataFactoryWrapperTest extends TestCase
 {
-    private ClassMetadataFactoryWrapperInterface $classMetadataFactoryWrapper;
+    private ClassMetadataFactory $classMetadataFactoryWrapper;
 
     /**
      * @var PropertyAccessorInterface&MockObject
@@ -101,10 +101,10 @@ final class ClassMetadataFactoryWrapperTest extends TestCase
         $this->assertEmpty($classMetadata->getParameters());
         $this->assertEmpty($classMetadata->getAttributes());
         $this->assertNotNull($mapping);
-        $this->assertEquals(['success'], $mapping->getMapValue());
-        $this->assertEquals('type', $mapping->getProperty()->getName());
-        $this->assertNull($mapping->getProperty()->getInvalidValue());
-        $this->assertFalse($mapping->getProperty()->isExits());
+        $this->assertEquals(['success'], $mapping->mapValue());
+        $this->assertEquals('type', $mapping->property()->getName());
+        $this->assertNull($mapping->property()->getInvalidValue());
+        $this->assertFalse($mapping->property()->isExits());
     }
 
     public function testGetEmptyClassMetadataClassDiscriminatorNotFound(): void
@@ -132,10 +132,10 @@ final class ClassMetadataFactoryWrapperTest extends TestCase
         $this->assertEmpty($classMetadata->getParameters());
         $this->assertEmpty($classMetadata->getAttributes());
         $this->assertNotNull($mapping);
-        $this->assertEquals(['success'], $mapping->getMapValue());
-        $this->assertEquals('type', $mapping->getProperty()->getName());
-        $this->assertIsString($mapping->getProperty()->getInvalidValue());
-        $this->assertTrue($mapping->getProperty()->isExits());
+        $this->assertEquals(['success'], $mapping->mapValue());
+        $this->assertEquals('type', $mapping->property()->getName());
+        $this->assertIsString($mapping->property()->getInvalidValue());
+        $this->assertTrue($mapping->property()->isExits());
     }
 
     /**

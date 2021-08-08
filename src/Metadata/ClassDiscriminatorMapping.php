@@ -29,12 +29,12 @@ final class ClassDiscriminatorMapping
     /**
      * @return string[]
      */
-    public function getMapValue(): array
+    public function mapValue(): array
     {
         return $this->mapValue;
     }
 
-    public function getProperty(): Property
+    public function property(): Property
     {
         return $this->property;
     }

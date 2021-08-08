@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Uuid as SymfonyUuidConstraint;
 use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
-final class UuidValidator implements ValidatorInterface
+final class UuidValidator implements Validator
 {
     private const INVALID_UUID_VERSION = 'This is not a valid UUID. Allowed Versions: %s';
     private const UUID_TYPES           = [
@@ -37,6 +37,11 @@ final class UuidValidator implements ValidatorInterface
         private SymfonyValidator $validator,
         private array $uuids = self::UUID_TYPES,
     ) {
+    }
+
+    public function isEnabledCircularReferenceStorage(): bool
+    {
+        return false;
     }
 
     public function support(\ReflectionType $type): bool
@@ -58,19 +63,19 @@ final class UuidValidator implements ValidatorInterface
 
     public function validate(Argument $argument, Context $context): void
     {
-        $type = $argument->getType();
+        $type = $argument->type();
 
         if (!$type instanceof \ReflectionNamedType) {
             throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         /** @var string $value */
-        $value = $argument->getValueByArgumentName();
+        $value = $argument->currentValue();
         /** @var class-string $uuid */
         $uuid      = $type->getName();
-        $execution = $context->getExecution();
+        $execution = $context->execution();
         $version   = findUuidVersion($uuid);
-        $options   = ['strict' => $context->isStrictTypes()];
+        $options   = ['strict' => $context->strictTypes()];
 
         if (null !== $version) {
             $options['versions'] = [$version];
@@ -78,7 +83,7 @@ final class UuidValidator implements ValidatorInterface
         }
 
         $this->validator->inContext($execution)
-            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
+            ->atPath(PropertyPath::append($context->path(), $argument->name()))
             ->validate($value, [
                 new NotBlank(),
                 new SymfonyUuidConstraint($options),

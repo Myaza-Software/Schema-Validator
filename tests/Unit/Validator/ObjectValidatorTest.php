@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace SchemaValidator\Test\Unit\Validator;
 
 use PHPUnit\Framework\Assert;
+use SchemaValidator\CircularReference\InMemoryCircularReferenceDetector;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
 use SchemaValidator\Test\Unit\ArgumentBuilder;
@@ -48,7 +49,7 @@ final class ObjectValidatorTest extends ValidatorTestCase
             'strictTypes' => true,
         ], groups: ['Default']);
 
-        $validator = new ObjectValidator($this->validator);
+        $validator = new ObjectValidator($this->validator, new InMemoryCircularReferenceDetector());
         $argument  = ArgumentBuilder::build($dtoWithVoArg, ['credentials' => $value]);
         $context   = new Context('', $dtoWithVoArg::class, true, $this->executionContext);
 
@@ -115,7 +116,7 @@ final class ObjectValidatorTest extends ValidatorTestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Type expected:' . \ReflectionNamedType::class);
 
-        $validator            = new ObjectValidator($this->validator);
+        $validator            = new ObjectValidator($this->validator, new InMemoryCircularReferenceDetector());
         $dtoWithUnionTypeArgs = new class(1) {
             public function __construct(
                 private string | int $id,
@@ -134,7 +135,7 @@ final class ObjectValidatorTest extends ValidatorTestCase
      */
     public function testSupport(\ReflectionType $type, bool $isSupport): void
     {
-        $validator = new ObjectValidator($this->validator);
+        $validator = new ObjectValidator($this->validator, new InMemoryCircularReferenceDetector());
 
         $this->assertEquals($isSupport, $validator->support($type));
     }

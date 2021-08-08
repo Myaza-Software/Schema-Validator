@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace SchemaValidator;
 
+use SchemaValidator\CircularReference\CircularReferenceStorage;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
@@ -18,19 +19,21 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final class Context
 {
     public function __construct(
-        private string $rootPath,
-        private string $rootType,
+        private string $path,
+        private string $type,
         private bool $strictTypes,
         private ExecutionContextInterface $execution,
+        private ?int $maxDepth = null,
+        private ?CircularReferenceStorage $circularReferenceStorage = null
     ) {
     }
 
-    public function getRootPath(): string
+    public function path(): string
     {
-        return $this->rootPath;
+        return $this->path;
     }
 
-    public function getExecution(): ExecutionContextInterface
+    public function execution(): ExecutionContextInterface
     {
         return $this->execution;
     }
@@ -38,9 +41,19 @@ final class Context
     /**
      * @return class-string|string
      */
-    public function getRootType(): string
+    public function type(): string
     {
-        return $this->rootType;
+        return $this->type;
+    }
+
+    public function strictTypes(): bool
+    {
+        return $this->strictTypes;
+    }
+
+    public function maxDepth(): ?int
+    {
+        return $this->maxDepth;
     }
 
     public function withExecution(ExecutionContextInterface $execution): self
@@ -51,8 +64,8 @@ final class Context
         return $new;
     }
 
-    public function isStrictTypes(): bool
+    public function circularReferenceStorage(): ?CircularReferenceStorage
     {
-        return $this->strictTypes;
+        return $this->circularReferenceStorage;
     }
 }

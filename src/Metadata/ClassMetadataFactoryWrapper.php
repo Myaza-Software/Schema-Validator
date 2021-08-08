@@ -13,7 +13,7 @@ namespace SchemaValidator\Metadata;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
-final class ClassMetadataFactoryWrapper implements ClassMetadataFactoryWrapperInterface
+final class ClassMetadataFactoryWrapper implements ClassMetadataFactory
 {
     public function __construct(
         private PropertyAccessorInterface $propertyAccessor,

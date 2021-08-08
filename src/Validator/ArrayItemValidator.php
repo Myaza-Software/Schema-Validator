@@ -11,19 +11,24 @@ declare(strict_types=1);
 namespace SchemaValidator\Validator;
 
 use SchemaValidator\Argument;
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorInterface;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
 use SchemaValidator\Context;
 use SchemaValidator\Schema;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-final class ArrayItemValidator implements ValidatorInterface
+final class ArrayItemValidator implements Validator
 {
     public function __construct(
-        private SymfonyValidator $validator,
-        private CollectionInfoExtractorInterface $extractor,
+        private ValidatorInterface $validator,
+        private CollectionInfoExtractor $extractor,
     ) {
+    }
+
+    public function isEnabledCircularReferenceStorage(): bool
+    {
+        return false;
     }
 
     public function support(\ReflectionType $type): bool
@@ -34,23 +39,23 @@ final class ArrayItemValidator implements ValidatorInterface
     public function validate(Argument $argument, Context $context): void
     {
         /** @var class-string $type */
-        $type         = $context->getRootType();
-        $argumentName = $argument->getName();
+        $type         = $context->type();
+        $argumentName = $argument->name();
         $valueType    = $this->extractor->getValueType($type, $argumentName);
 
-        if (null === $valueType->getType()) {
+        if (null === $valueType->type()) {
             return;
         }
 
         /** @var array<string,array<string,mixed>|int|string|float> $value */
-        $value        = is_array($argument->getValueByArgumentName()) ? $argument->getValueByArgumentName() : [];
-        $rootPath     = $context->getRootPath();
-        $propertyPath = $argument->getName();
-        $validator    = $this->validator->inContext($context->getExecution())->atPath($rootPath);
+        $value        = is_array($argument->currentValue()) ? $argument->currentValue() : [];
+        $rootPath     = $context->path();
+        $propertyPath = $argument->name();
+        $validator    = $this->validator->inContext($context->execution())->atPath($rootPath);
 
         if ($valueType->isBuiltin()) {
             $validator->validate($value, new All([
-                new Type($valueType->getType()),
+                new Type($valueType->type()),
             ]));
 
             return;
@@ -58,9 +63,9 @@ final class ArrayItemValidator implements ValidatorInterface
 
         if ([] === $value || !array_is_list($value)) {
             $validator->validate($value, new Schema([
-                'type'        => $valueType->getType(),
+                'type'        => $valueType->type(),
                 'rootPath'    => $propertyPath . '[]',
-                'strictTypes' => $context->isStrictTypes(),
+                'strictTypes' => $context->strictTypes(),
             ]));
 
             return;
@@ -68,9 +73,9 @@ final class ArrayItemValidator implements ValidatorInterface
 
         foreach ($value as $key => $item) {
             $validator->validate(is_array($item) ? $item : [$item], new Schema([
-                'type'        => $valueType->getType(),
+                'type'        => $valueType->type(),
                 'rootPath'    => $propertyPath . '[' . $key . ']',
-                'strictTypes' => $context->isStrictTypes(),
+                'strictTypes' => $context->strictTypes(),
             ]));
         }
     }

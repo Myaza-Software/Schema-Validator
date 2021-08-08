@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace SchemaValidator\Metadata;
+namespace SchemaValidator\CircularReference;
 
-interface ClassMetadataFactoryWrapperInterface
+interface SupportCircularReferenceStorage
 {
-    public function getMetadataFor(string $type, array $values): ClassMetadata;
+    public function isEnabledCircularReferenceStorage(): bool;
 }

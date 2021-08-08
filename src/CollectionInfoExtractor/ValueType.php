@@ -21,7 +21,7 @@ final class ValueType
     ) {
     }
 
-    public function getType(): ?string
+    public function type(): ?string
     {
         return $this->type;
     }

@@ -47,7 +47,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
      * @dataProvider successValidateDataProvider
      * @psalm-suppress MixedArgument
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testSuccessValidate(Argument $argument, array $other): void
     {
@@ -62,7 +62,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}}>
+     * @return array<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool}}>
      */
     public function successValidateDataProvider(): array
     {
@@ -76,23 +76,23 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
         return [
             [
                 ArgumentBuilder::build($dtoWithIntArg, ['id' => 50]),
-                ['rootPath' => '', 'rootType' => $dtoWithIntArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithIntArg::class, 'strictTypes' => true],
             ],
             [
                 ArgumentBuilder::build($dtoWithIntArg, ['id' => '50']),
-                ['rootPath' => '', 'rootType' => $dtoWithIntArg::class, 'strictTypes' => false],
+                ['path' => '', 'type' => $dtoWithIntArg::class, 'strictTypes' => false],
             ],
             [
                 ArgumentBuilder::build($dtoWithFloatArg, ['value' => 1.333]),
-                ['rootPath' => '', 'rootType' => $dtoWithFloatArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithFloatArg::class, 'strictTypes' => true],
             ],
             [
                 ArgumentBuilder::build($dtoWithStringArg, ['name' => 'AZA']),
-                ['rootPath' => '', 'rootType' => $dtoWithStringArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithStringArg::class, 'strictTypes' => true],
             ],
             [
                 ArgumentBuilder::build($dtoWithNullableArgs, ['id' => null]),
-                ['rootPath' => '', 'rootType' => $dtoWithNullableArgs::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithNullableArgs::class, 'strictTypes' => true],
             ],
         ];
     }
@@ -127,7 +127,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
      * @dataProvider failedValidateDataProvider
      * @psalm-suppress MixedArgument
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testFailedValidate(Argument $argument, array $other, string $type): void
     {
@@ -138,10 +138,10 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
 
         $this->buildViolation('This value should be of type {{ type }}.', $constraint)
-            ->atPath($argument->getName())
-            ->setParameter('{{ value }}', formatValue($argument->getValueByArgumentName()))
+            ->atPath($argument->name())
+            ->setParameter('{{ value }}', formatValue($argument->currentValue()))
             ->setParameter('{{ type }}', $type)
-            ->setInvalidValue($argument->getValueByArgumentName())
+            ->setInvalidValue($argument->currentValue())
             ->setCode('ba785a8c-82cb-4283-967c-3cf342181b40')
             ->assertRaised()
         ;
@@ -150,7 +150,7 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return array<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool},2: string}>
+     * @return array<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool},2: string}>
      */
     public function failedValidateDataProvider(): array
     {
@@ -163,32 +163,32 @@ final class PrimitiveValidatorTest extends ValidatorTestCase
         return [
             [
                 ArgumentBuilder::build($dtoWithFloatArg, ['value' => 1]),
-                ['rootPath' => '', 'rootType' => $dtoWithFloatArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithFloatArg::class, 'strictTypes' => true],
                 'float',
             ],
             [
                 ArgumentBuilder::build($dtoWithFloatArg, ['value' => 'toos']),
-                ['rootPath' => '', 'rootType' => $dtoWithFloatArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithFloatArg::class, 'strictTypes' => true],
                 'float',
             ],
             [
                 ArgumentBuilder::build($dtoWithIntArg, ['id' => 'gavno']),
-                ['rootPath' => '', 'rootType' => $dtoWithIntArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithIntArg::class, 'strictTypes' => true],
                 'int',
             ],
             [
                 ArgumentBuilder::build($dtoWithIntArg, ['id' => 1.333]),
-                ['rootPath' => '', 'rootType' => $dtoWithIntArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithIntArg::class, 'strictTypes' => true],
                 'int',
             ],
             [
                 ArgumentBuilder::build($dtoWithStringArg, ['name' => 1]),
-                ['rootPath' => '', 'rootType' => $dtoWithStringArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithStringArg::class, 'strictTypes' => true],
                 'string',
             ],
             [
                 ArgumentBuilder::build($dtoWithStringArg, ['name' => 1.33]),
-                ['rootPath' => '', 'rootType' => $dtoWithStringArg::class, 'strictTypes' => true],
+                ['path' => '', 'type' => $dtoWithStringArg::class, 'strictTypes' => true],
                 'string',
             ],
         ];

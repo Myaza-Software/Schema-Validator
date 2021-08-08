@@ -13,7 +13,7 @@ namespace SchemaValidator\Test\Unit\CollectionInfoExtractor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorInterface;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorWrapper;
 use SchemaValidator\CollectionInfoExtractor\ValueType;
 use SchemaValidator\Test\Unit\Stub\Type as TypeStub;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\PropertyInfo\Type;
 
 final class CollectionInfoExtractorTest extends TestCase
 {
-    private CollectionInfoExtractorInterface $collectionInfoExtractor;
+    private CollectionInfoExtractor $collectionInfoExtractor;
 
     /**
      * @var PropertyInfoExtractorInterface&MockObject
@@ -31,7 +31,7 @@ final class CollectionInfoExtractorTest extends TestCase
     protected function setUp(): void
     {
         $this->propertyInfoExtractor   = $this->createMock(PropertyInfoExtractorInterface::class);
-        $this->collectionInfoExtractor = new CollectionInfoExtractor($this->propertyInfoExtractor);
+        $this->collectionInfoExtractor = new CollectionInfoExtractorWrapper($this->propertyInfoExtractor);
     }
 
     /**
@@ -44,7 +44,7 @@ final class CollectionInfoExtractorTest extends TestCase
 
         $valueType = $this->collectionInfoExtractor->getValueType(\stdClass::class, 'customers');
 
-        $this->assertNull($valueType->getType());
+        $this->assertNull($valueType->type());
         $this->assertTrue($valueType->isBuiltin());
     }
 

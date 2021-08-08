@@ -10,8 +10,9 @@ declare(strict_types=1);
 
 namespace SchemaValidator;
 
-use SchemaValidator\Metadata\ClassMetadataFactoryWrapperInterface;
-use SchemaValidator\Validator\ValidatorInterface;
+use SchemaValidator\CircularReference\CircularReferenceStorage;
+use SchemaValidator\Metadata\ClassMetadataFactory;
+use SchemaValidator\Validator\Validator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -23,11 +24,11 @@ final class SchemaValidator extends ConstraintValidator
     /**
      * SchemaValidator constructor.
      *
-     * @param iterable<ValidatorInterface> $validators
+     * @param iterable<Validator> $validators
      */
     public function __construct(
         private iterable $validators,
-        private ClassMetadataFactoryWrapperInterface $classMetadataFactory
+        private ClassMetadataFactory $classMetadataFactory
     ) {
     }
 
@@ -45,7 +46,7 @@ final class SchemaValidator extends ConstraintValidator
         $mapping  = $metadata->getMapping();
 
         if ($metadata->isEmpty() && null !== $mapping) {
-            $property = $mapping->getProperty();
+            $property = $mapping->property();
 
             if (!$property->isExits()) {
                 $this->context->buildViolation(Schema::MESSAGE_FILED_MISSING)
@@ -61,7 +62,7 @@ final class SchemaValidator extends ConstraintValidator
 
             $this->context->buildViolation(Schema::UNKNOWN_RESOURCE)
                 ->atPath(PropertyPath::append($constraint->rootPath, $property->getName()))
-                ->setParameter('{{ allowed }}', $this->formatValues($mapping->getMapValue()))
+                ->setParameter('{{ allowed }}', $this->formatValues($mapping->mapValue()))
                 ->setCode(Schema::UNKNOWN_RESOURCE_CODE)
                 ->setInvalidValue($property->getInvalidValue())
                 ->addViolation()
@@ -74,7 +75,8 @@ final class SchemaValidator extends ConstraintValidator
 
         foreach ($metadata->getParameters() as $parameter) {
             $reflectionType = $parameter->getType();
-            $propertyName   = ($attributes[$parameter->name] ?? null)?->getSerializedName() ?? $parameter->name;
+            $attribute      = $attributes[$parameter->name] ?? null;
+            $propertyName   = $attribute?->getSerializedName() ?? $parameter->name;
 
             if (null === $reflectionType) {
                 continue;
@@ -101,8 +103,16 @@ final class SchemaValidator extends ConstraintValidator
                     continue;
                 }
 
+                $storage  = $validator->isEnabledCircularReferenceStorage() ? $constraint->circularReferenceStorage ?? new CircularReferenceStorage() : null;
                 $argument = new Argument($propertyName, $value, $reflectionType);
-                $context  = new Context($constraint->rootPath, $constraint->type, $constraint->strictTypes, $this->context);
+                $context  = new Context(
+                    $constraint->rootPath,
+                    $constraint->type,
+                    $constraint->strictTypes,
+                    $this->context,
+                    $attribute?->getMaxDepth(),
+                    $storage
+                );
 
                 $validator->validate($argument, $context);
 

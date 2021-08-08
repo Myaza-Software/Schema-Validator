@@ -12,9 +12,9 @@ namespace SchemaValidator\Test\Unit\Stub;
 
 use SchemaValidator\Argument;
 use SchemaValidator\Context;
-use SchemaValidator\Validator\ValidatorInterface;
+use SchemaValidator\Validator\Validator;
 
-final class StubIgnoreValidator implements ValidatorInterface
+final class StubIgnoreValidator implements Validator
 {
     public function support(\ReflectionType $type): bool
     {

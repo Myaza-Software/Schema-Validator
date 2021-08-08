@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace SchemaValidator\Test\Unit\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorWrapper;
 use SchemaValidator\DependencyInjection\SchemaExtension;
 use SchemaValidator\Metadata\ClassMetadataFactoryWrapper;
 use SchemaValidator\SchemaValidator;
@@ -48,7 +48,7 @@ final class SchemaExtensionTest extends AbstractExtensionTestCase
     public function loadedServicesDataProvider(): iterable
     {
         return [
-            ['schema.collection_info_extractor', CollectionInfoExtractor::class],
+            ['schema.collection_info_extractor', CollectionInfoExtractorWrapper::class],
             ['schema.object_validator', ObjectValidator::class],
             ['schema.my_clabs_validator', MyCLabsEnumValidator::class],
             ['schema.uuid_validator', UuidValidator::class],

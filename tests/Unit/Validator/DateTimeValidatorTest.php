@@ -54,13 +54,13 @@ final class DateTimeValidatorTest extends ValidatorTestCase
      * @dataProvider successValidateDataProvider
      * @psalm-suppress MixedArgument
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testSuccessValidate(Argument $argument, array $other): void
     {
         $validator = new DateTimeValidator();
         $context   = new Context(...$other + ['execution' => $this->executionContext]);
-        $this->executionContext->setConstraint(new Schema(['type' => $context->getRootType()]));
+        $this->executionContext->setConstraint(new Schema(['type' => $context->type()]));
 
         $validator->validate($argument, $context);
 
@@ -70,7 +70,7 @@ final class DateTimeValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return \Generator<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}}>
+     * @return \Generator<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool}}>
      */
     public function successValidateDataProvider(): iterable
     {
@@ -83,7 +83,7 @@ final class DateTimeValidatorTest extends ValidatorTestCase
             foreach ([$dtoWithDateTimeArg, $dtoWithDatetimeImmutableArg] as $dto) {
                 yield [
                     ArgumentBuilder::build($dto, ['createdAt' => date($format)]),
-                    ['rootPath' => '', 'rootType' => $dto::class, 'strictTypes' => true],
+                    ['path' => '', 'type' => $dto::class, 'strictTypes' => true],
                 ];
             }
         }
@@ -93,12 +93,12 @@ final class DateTimeValidatorTest extends ValidatorTestCase
      * @dataProvider failedValidateDataProvider
      * @psalm-suppress MixedArgument
      *
-     * @param array{rootPath:string, rootType: string, strictTypes: bool} $other
+     * @param array{path:string, type: string, strictTypes: bool} $other
      */
     public function testFailedValidate(Argument $argument, array $other): void
     {
         $context    = new Context(...$other + ['execution' => $this->executionContext]);
-        $constraint = new Schema(['type' => $context->getRootType()]);
+        $constraint = new Schema(['type' => $context->type()]);
         $validator  = new DateTimeValidator();
 
         $this->executionContext->setConstraint($constraint);
@@ -106,8 +106,8 @@ final class DateTimeValidatorTest extends ValidatorTestCase
         $validator->validate($argument, $context);
 
         $this->buildViolation('This is not a valid date.', $constraint)
-            ->atPath($argument->getName())
-            ->setInvalidValue($argument->getValueByArgumentName())
+            ->atPath($argument->name())
+            ->setInvalidValue($argument->currentValue())
             ->setCode('780e721d-ce3c-42f3-854d-f990ebffdc4f')
             ->assertRaised()
         ;
@@ -116,7 +116,7 @@ final class DateTimeValidatorTest extends ValidatorTestCase
     /**
      * @throws \ReflectionException
      *
-     * @return \Generator<int,array{0: Argument, 1: array{rootPath:string, rootType: string, strictTypes: bool}}>
+     * @return \Generator<int,array{0: Argument, 1: array{path:string, type: string, strictTypes: bool}}>
      */
     public function failedValidateDataProvider(): iterable
     {
@@ -129,7 +129,7 @@ final class DateTimeValidatorTest extends ValidatorTestCase
             foreach ([$dtoWithDateTimeArg, $dtoWithDatetimeImmutableArg] as $dto) {
                 yield [
                     ArgumentBuilder::build($dto, ['createdAt' => $value]),
-                    ['rootPath' => '', 'rootType' => $dto::class, 'strictTypes' => true],
+                    ['path' => '', 'type' => $dto::class, 'strictTypes' => true],
                 ];
             }
         }

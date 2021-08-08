@@ -16,16 +16,21 @@ use function SchemaValidator\formatValue;
 use SchemaValidator\Schema;
 use Symfony\Component\Validator\Util\PropertyPath;
 
-final class UnionTypeValidator implements ValidatorInterface
+final class UnionTypeValidator implements Validator
 {
     /**
      * UnionTypeValidator constructor.
      *
-     * @param iterable<ValidatorInterface> $validators
+     * @param iterable<Validator> $validators
      */
     public function __construct(
         private iterable $validators,
     ) {
+    }
+
+    public function isEnabledCircularReferenceStorage(): bool
+    {
+        return false;
     }
 
     public function support(\ReflectionType $type): bool
@@ -35,8 +40,8 @@ final class UnionTypeValidator implements ValidatorInterface
 
     public function validate(Argument $argument, Context $context): void
     {
-        $unionType = $argument->getType();
-        $execution = $context->getExecution();
+        $unionType = $argument->type();
+        $execution = $context->execution();
 
         if (!$unionType instanceof \ReflectionUnionType) {
             throw new \InvalidArgumentException('Type expected:' . \ReflectionUnionType::class);
@@ -68,11 +73,11 @@ final class UnionTypeValidator implements ValidatorInterface
         }
 
         $execution->buildViolation(Schema::INVALID_TYPE, [
-            '{{ value }}' => formatValue($argument->getValueByArgumentName()),
+            '{{ value }}' => formatValue($argument->currentValue()),
             '{{ type }}'  => $this->formatUnionType($unionType),
         ])
-            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
-            ->setInvalidValue($argument->getValueByArgumentName())
+            ->atPath(PropertyPath::append($context->path(), $argument->name()))
+            ->setInvalidValue($argument->currentValue())
             ->setCode(Schema::INVALID_TYPE_ERROR)
             ->addViolation()
         ;

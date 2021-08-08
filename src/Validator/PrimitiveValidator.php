@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints\Type as ConstraintType;
 use Symfony\Component\Validator\Util\PropertyPath;
 use Symfony\Component\Validator\Validator\ValidatorInterface as SymfonyValidator;
 
-final class PrimitiveValidator implements ValidatorInterface
+final class PrimitiveValidator implements Validator
 {
     private const SUPPORT_CAST_TYPE = [
         'int'    => ['int', 'string', 'float'],
@@ -29,6 +29,11 @@ final class PrimitiveValidator implements ValidatorInterface
     ) {
     }
 
+    public function isEnabledCircularReferenceStorage(): bool
+    {
+        return false;
+    }
+
     public function support(\ReflectionType $type): bool
     {
         return $type instanceof \ReflectionNamedType && $type->isBuiltin();
@@ -36,18 +41,18 @@ final class PrimitiveValidator implements ValidatorInterface
 
     public function validate(Argument $argument, Context $context): void
     {
-        $type = $argument->getType();
+        $type = $argument->type();
 
         if (!$type instanceof \ReflectionNamedType) {
             throw new \InvalidArgumentException('Type expected:' . \ReflectionNamedType::class);
         }
 
         /** @var string|int|float|array $value */
-        $value    = $argument->getValueByArgumentName();
+        $value    = $argument->currentValue();
         $typeName = $type->getName();
         $types    = [$typeName];
 
-        if (!$context->isStrictTypes() && array_key_exists($typeName, self::SUPPORT_CAST_TYPE)) {
+        if (!$context->strictTypes() && array_key_exists($typeName, self::SUPPORT_CAST_TYPE)) {
             $types = self::SUPPORT_CAST_TYPE[$typeName];
         }
 
@@ -55,8 +60,8 @@ final class PrimitiveValidator implements ValidatorInterface
             'type' => $types,
         ]);
 
-        $this->validator->inContext($context->getExecution())
-            ->atPath(PropertyPath::append($context->getRootPath(), $argument->getName()))
+        $this->validator->inContext($context->execution())
+            ->atPath(PropertyPath::append($context->path(), $argument->name()))
             ->validate($value, [$constraint])
         ;
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace SchemaValidator;
 
+use SchemaValidator\CircularReference\CircularReferenceStorage;
 use Symfony\Component\Validator\Constraint;
 
 final class Schema extends Constraint
@@ -30,6 +31,8 @@ final class Schema extends Constraint
     public string $rootPath = '';
 
     public bool $strictTypes = false;
+
+    public ?CircularReferenceStorage $circularReferenceStorage = null;
 
     /**
      * Schema constructor.

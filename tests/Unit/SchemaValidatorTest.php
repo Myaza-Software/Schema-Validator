@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
 use function SchemaValidator\formatValue;
 use SchemaValidator\Metadata\ClassDiscriminatorMapping;
 use SchemaValidator\Metadata\ClassMetadata;
-use SchemaValidator\Metadata\ClassMetadataFactoryWrapperInterface;
+use SchemaValidator\Metadata\ClassMetadataFactory;
 use SchemaValidator\Metadata\Property;
 use SchemaValidator\Schema;
 use SchemaValidator\SchemaValidator;
@@ -35,13 +35,13 @@ final class SchemaValidatorTest extends ConstraintValidatorTestCase
     private bool $addValidators = false;
 
     /**
-     * @var ClassMetadataFactoryWrapperInterface&\PHPUnit\Framework\MockObject\MockObject
+     * @var ClassMetadataFactory&\PHPUnit\Framework\MockObject\MockObject
      */
-    private ClassMetadataFactoryWrapperInterface $classMetadataFactoryWrapper;
+    private ClassMetadataFactory $classMetadataFactoryWrapper;
 
     protected function setUp(): void
     {
-        $this->classMetadataFactoryWrapper = $this->createMock(ClassMetadataFactoryWrapperInterface::class);
+        $this->classMetadataFactoryWrapper = $this->createMock(ClassMetadataFactory::class);
 
         parent::setUp();
     }

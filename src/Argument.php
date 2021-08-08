@@ -22,22 +22,25 @@ final class Argument
     ) {
     }
 
-    public function getRootValues(): array
+    public function rootValues(): array
     {
         return $this->rootValues;
     }
 
-    public function getName(): string
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function getType(): \ReflectionType
+    public function type(): \ReflectionType
     {
         return $this->type;
     }
 
-    public function getValueByArgumentName(): mixed
+    /**
+     * @psalm-suppress MixedInferredReturnType,MixedReturnStatement
+     */
+    public function currentValue(): bool | int | float | string | array | null
     {
         return array_key_exists($this->name, $this->rootValues) ? $this->rootValues[$this->name] : null;
     }

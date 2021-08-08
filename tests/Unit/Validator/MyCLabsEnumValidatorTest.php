@@ -106,7 +106,7 @@ final class MyCLabsEnumValidatorTest extends ValidatorTestCase
             ->setCode('8e179f1b-97aa-4560-a02f-2a8b42e49df7')
             ->setParameter('{{ value }}', formatValue($value))
             ->setParameter('{{ choices }}', $this->formatValues($choices))
-            ->atPath($argument->getName())
+            ->atPath($argument->name())
             ->setInvalidValue($value)
             ->assertRaised()
         ;

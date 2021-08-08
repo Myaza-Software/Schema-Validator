@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace SchemaValidator\Validator;
 
-interface PriorityInterface
+interface Priority
 {
     public static function priority(): int;
 }

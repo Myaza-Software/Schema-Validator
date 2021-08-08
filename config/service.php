@@ -8,7 +8,8 @@
 
 declare(strict_types=1);
 
-use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractor;
+use SchemaValidator\CircularReference\InMemoryCircularReferenceDetector;
+use SchemaValidator\CollectionInfoExtractor\CollectionInfoExtractorWrapper;
 use SchemaValidator\Metadata\ClassMetadataFactoryWrapper;
 use SchemaValidator\SchemaValidator;
 use SchemaValidator\Validator\ArrayItemValidator;
@@ -26,7 +27,7 @@ return static function (ContainerConfigurator $di): void {
     $services = $di->services();
 
     $services
-        ->set('schema.collection_info_extractor', CollectionInfoExtractor::class)
+        ->set('schema.collection_info_extractor', CollectionInfoExtractorWrapper::class)
             ->args([service('property_info')])
 
         ->set('schema.object_validator', ObjectValidator::class)
@@ -44,7 +45,7 @@ return static function (ContainerConfigurator $di): void {
         ->set('schema.array_item_validator', ArrayItemValidator::class)
             ->args([
                 service('validator'),
-                service('schema.collection_info_extractor')
+                service('schema.collection_info_extractor'),
             ])
             ->tag('schema.validator')
 
