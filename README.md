@@ -41,7 +41,7 @@ composer install myaza-software/schema-validator
 
 ## Example
 
-```injectablephp
+```php
 <?php
 
 declare(strict_types=1);
